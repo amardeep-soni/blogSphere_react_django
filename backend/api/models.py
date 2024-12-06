@@ -13,7 +13,20 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if not self.slug:
+        # Check if this is an existing instance
+        if self.pk:
+            original = Post.objects.get(pk=self.pk)
+            # Update the slug only if the title has changed
+            if original.title != self.title:
+                base_slug = slugify(self.title)
+                slug = base_slug
+                counter = 1
+                while Post.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                    slug = f"{base_slug}-{counter}"
+                    counter += 1
+                self.slug = slug
+        else:
+            # For new instances, generate a slug
             base_slug = slugify(self.title)
             slug = base_slug
             counter = 1

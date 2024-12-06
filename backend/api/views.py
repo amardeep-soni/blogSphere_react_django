@@ -12,6 +12,7 @@ from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Post
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
 
 
 # User Detail View
@@ -47,6 +48,7 @@ class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
+
 # post list view
 class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all()
@@ -57,9 +59,20 @@ class PostListCreateView(generics.ListCreateAPIView):
         serializer.save(author=self.request.user)
 
 
-# post details view
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.select_related("author")
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = "slug"  # Use slug instead of id
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = "slug"  # Use the 'slug' field instead of 'id'
+
+    def perform_update(self, serializer):
+        # ensure that only author can update
+        if self.get_object().author != self.request.user:
+            raise PermissionDenied("You do not have permission to edit this post.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # ensure that only author can delete
+        if instance.author != self.request.user:
+            raise PermissionDenied("You do not have permission to delete this post.")
+        instance.delete()
