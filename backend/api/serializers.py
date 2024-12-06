@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import AuthenticationFailed
-from .models import Post
+from .models import Category, Post
 
 
 # Register Serializer
@@ -72,9 +72,22 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "username", "email", "first_name", "last_name"]
 
-# post serializer
+
+# Category Serializer
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["id", "name", "description"]
+
+
 class PostSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    author = UserSerializer(read_only=True) 
+    category = CategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        source="category",
+        write_only=True,
+    )
 
     class Meta:
         model = Post
@@ -84,6 +97,8 @@ class PostSerializer(serializers.ModelSerializer):
             "content",
             "slug",
             "author",
+            "category",
+            "category_id",
             "created_at",
             "updated_at",
         ]

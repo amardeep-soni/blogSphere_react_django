@@ -1,4 +1,5 @@
 from .serializers import (
+    CategorySerializer,
     PostSerializer,
     UserSerializer,
     RegisterSerializer,
@@ -10,7 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Post
+from .models import Category, Post
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 
@@ -76,3 +77,16 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
         if instance.author != self.request.user:
             raise PermissionDenied("You do not have permission to delete this post.")
         instance.delete()
+
+
+# Category Views
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
+
+
+class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]

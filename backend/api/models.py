@@ -9,6 +9,9 @@ class Post(models.Model):
     content = models.TextField()
     slug = models.SlugField(unique=True, max_length=255, blank=True)  # Add slug field
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
+    category = models.ForeignKey(
+        "Category", on_delete=models.CASCADE, related_name="posts"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -35,3 +38,9 @@ class Post(models.Model):
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
