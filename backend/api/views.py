@@ -14,6 +14,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Category, Post
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import AllowAny
 
 
 # User Detail View
@@ -50,33 +51,55 @@ class UserListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
 
-# post list view
+# Post List and Create View
 class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+
+    # Allow anyone to view posts, but only authenticated users can create posts
+    permission_classes = [AllowAny]  # Public view for listing posts
 
     def perform_create(self, serializer):
+        # Only authenticated users can create posts
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("You must be logged in to create a post.")
         serializer.save(author=self.request.user)
 
 
+# Post Detail View
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.select_related("author")
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    lookup_field = "slug"  # Use the 'slug' field instead of 'id'
+    lookup_field = "slug"
+    permission_classes = [AllowAny]  # Anyone can view posts
+
+    # Restrict update and delete permissions to the post author
+    def get_permissions(self):
+        if self.request.method in ["PUT", "PATCH", "DELETE"]:
+            self.permission_classes = [
+                IsPostAuthor
+            ]  # Only the author can update or delete
+        else:
+            self.permission_classes = [AllowAny]  # Anyone can view
+        return super().get_permissions()
 
     def perform_update(self, serializer):
-        # ensure that only author can update
+        # Ensure only the post author can update their post
         if self.get_object().author != self.request.user:
             raise PermissionDenied("You do not have permission to edit this post.")
         serializer.save()
 
     def perform_destroy(self, instance):
-        # ensure that only author can delete
+        # Ensure only the post author can delete their post
         if instance.author != self.request.user:
             raise PermissionDenied("You do not have permission to delete this post.")
         instance.delete()
+
+
+# Custom Permission for Post Author Only
+class IsPostAuthor(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.author == request.user
 
 
 # Category Views
