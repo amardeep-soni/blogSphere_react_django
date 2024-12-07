@@ -1,5 +1,7 @@
+from django.forms import ValidationError
 from .serializers import (
     CategorySerializer,
+    CommentSerializer,
     PostSerializer,
     UserSerializer,
     RegisterSerializer,
@@ -11,9 +13,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Category, Post
+from .models import Category, Post, Comment
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.permissions import AllowAny
 
 
@@ -113,3 +115,33 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
+
+
+# Comment Views
+class CommentListCreateView(generics.ListCreateAPIView):
+    queryset = Comment.objects.select_related("post")
+    serializer_class = CommentSerializer
+    permission_classes = [AllowAny]  # Allow anyone to submit comments
+
+    def perform_create(self, serializer):
+        # Get the slug from the request data
+        slug = self.request.data.get("slug")
+        if not slug:
+            raise ValidationError({"slug": "This field is required."})
+
+        # Retrieve the post using the slug
+        try:
+            post = Post.objects.get(slug=slug)
+        except Post.DoesNotExist:
+            raise NotFound("Post with the given slug does not exist.")
+
+        # Save the comment with the associated post
+        serializer.save(post=post)
+
+
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.select_related("post")
+    serializer_class = CommentSerializer
+    permission_classes = [
+        AllowAny
+    ]

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import AuthenticationFailed
-from .models import Category, Post
+from .models import Category, Post, Comment
 
 
 # Register Serializer
@@ -79,15 +79,41 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ["id", "name", "description"]
 
+# Comment Serializer
+class CommentSerializer(serializers.ModelSerializer):
+    slug = serializers.SlugField(write_only=True)  # Accept slug for creating a comment
+
+    class Meta:
+        model = Comment
+        fields = ["id", "post", "slug", "name", "email", "content", "created_at"]
+        read_only_fields = ["post", "created_at"]
+
+    def validate_slug(self, value):
+        # Ensure the slug corresponds to an existing post
+        try:
+            Post.objects.get(slug=value)
+        except Post.DoesNotExist:
+            raise serializers.ValidationError("No post found with this slug.")
+        return value
+
+    def create(self, validated_data):
+        slug = validated_data.pop("slug")  # Extract the slug from validated data
+        post = Post.objects.get(slug=slug)  # Fetch the post using the slug
+        validated_data["post"] = post  # Assign the post to the comment
+        return super().create(validated_data)
+
 
 class PostSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True) 
+    author = UserSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
         source="category",
         write_only=True,
     )
+    comments = CommentSerializer(
+        many=True, read_only=True
+    )  # Include all comments related to the post
 
     class Meta:
         model = Post
@@ -99,6 +125,7 @@ class PostSerializer(serializers.ModelSerializer):
             "author",
             "category",
             "category_id",
+            "comments",
             "created_at",
             "updated_at",
         ]

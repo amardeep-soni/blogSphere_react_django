@@ -2,12 +2,15 @@ from django.urls import path
 from .views import (
     CategoryDetailView,
     CategoryListCreateView,
+    CommentDetailView,
+    CommentListCreateView,
     LoginTokenView,
     PostDetailView,
     PostListCreateView,
     RegisterView,
     UserListView,
     UserDetailView,
+    
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -23,4 +26,7 @@ urlpatterns = [
     # Category URLs
     path("category/", CategoryListCreateView.as_view(), name="category-list-create"),
     path("category/<int:pk>/", CategoryDetailView.as_view(), name="category-detail"),
+     # Comment URLs
+    path("comments/", CommentListCreateView.as_view(), name="comment-list-create"),
+    path("comments/<int:pk>/", CommentDetailView.as_view(), name="comment-detail"),
 ]
