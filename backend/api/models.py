@@ -3,6 +3,18 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 
 
+# User Profile Model
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    bio = models.TextField(blank=True, null=True)  # User bio
+    photo = models.ImageField(
+        upload_to="profile_photos/", blank=True, null=True
+    )  # Profile photo
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+
+
 # Create your models here.
 class Post(models.Model):
     title = models.CharField(max_length=200)
@@ -44,6 +56,7 @@ class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")

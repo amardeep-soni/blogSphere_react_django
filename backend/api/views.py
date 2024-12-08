@@ -19,13 +19,6 @@ from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.permissions import AllowAny
 
 
-# User Detail View
-class UserDetailView(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-
 # Register View
 class RegisterView(APIView):
     permission_classes = []  # Allow unauthenticated users
@@ -35,7 +28,7 @@ class RegisterView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(
-                {"message": "User registered successfully!"},
+                {"message": "User registered successfully!"},  # Success message only
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -51,6 +44,13 @@ class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "username"  # Fetch user details via username
 
 
 # Post List and Create View
@@ -142,6 +142,4 @@ class CommentListCreateView(generics.ListCreateAPIView):
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.select_related("post")
     serializer_class = CommentSerializer
-    permission_classes = [
-        AllowAny
-    ]
+    permission_classes = [AllowAny]
