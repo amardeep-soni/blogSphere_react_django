@@ -137,6 +137,7 @@ class PostSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(
         many=True, read_only=True
     )  # Include all comments related to the post
+    image = serializers.ImageField(required=True)  # Include image field
 
     class Meta:
         model = Post
@@ -145,6 +146,7 @@ class PostSerializer(serializers.ModelSerializer):
             "title",
             "content",
             "slug",
+            "image",
             "author",
             "category",
             "category_id",

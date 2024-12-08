@@ -24,6 +24,7 @@ class Post(models.Model):
     category = models.ForeignKey(
         "Category", on_delete=models.CASCADE, related_name="posts"
     )
+    image = models.ImageField(upload_to="post_images/", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
