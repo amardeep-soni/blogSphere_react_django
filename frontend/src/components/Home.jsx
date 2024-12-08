@@ -19,7 +19,7 @@ const Home = () => {
           className="absolute w-full h-full object-cover"
           alt=""
         />
-        <div className="absolute w-full h-full bg-[#00000040] flex items-center flex-col justify-center gap-3">
+        <div className="absolute w-full h-full bg-[#00000099] flex items-center flex-col justify-center gap-3">
           <h1 className="text-5xl font-bold text-center">Welcome to BlogSphere!</h1>
           <p className="text-xl text-center">Your one-stop destination for blogging.</p>
         </div>
