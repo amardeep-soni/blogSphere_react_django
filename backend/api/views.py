@@ -1,6 +1,7 @@
 from django.forms import ValidationError
 from .serializers import (
     CategorySerializer,
+    CategoryDetailSerializer,
     CommentSerializer,
     PostSerializer,
     UserSerializer,
@@ -113,8 +114,9 @@ class CategoryListCreateView(generics.ListCreateAPIView):
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
+    serializer_class = CategoryDetailSerializer  # Ensure this serializer includes posts
+    lookup_field = "name"  # Use 'name' as the lookup field
 
 
 # Comment Views

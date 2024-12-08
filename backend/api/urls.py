@@ -10,7 +10,6 @@ from .views import (
     RegisterView,
     UserListView,
     UserDetailView,
-    
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -25,8 +24,8 @@ urlpatterns = [
     path("posts/<slug:slug>/", PostDetailView.as_view(), name="post-detail"),
     # Category URLs
     path("category/", CategoryListCreateView.as_view(), name="category-list-create"),
-    path("category/<int:pk>/", CategoryDetailView.as_view(), name="category-detail"),
-     # Comment URLs
+    path("category/<str:name>/", CategoryDetailView.as_view(), name="category-detail"),
+    # Comment URLs
     path("comments/", CommentListCreateView.as_view(), name="comment-list-create"),
     path("comments/<int:pk>/", CommentDetailView.as_view(), name="comment-detail"),
 ]

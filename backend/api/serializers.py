@@ -92,13 +92,6 @@ class LoginTokenSerializer(TokenObtainPairSerializer):
         return data
 
 
-# Category Serializer
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ["id", "name", "description"]
-
-
 # Comment Serializer
 class CommentSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(write_only=True)  # Accept slug for creating a comment
@@ -125,19 +118,15 @@ class CommentSerializer(serializers.ModelSerializer):
 
 # PostSerializer
 class PostSerializer(serializers.ModelSerializer):
-    author = (
-        serializers.StringRelatedField()
-    )  # Use string representation of the author (or reference user serializer lazily)
-    category = CategorySerializer(read_only=True)
+    author = serializers.StringRelatedField()
+    category = serializers.CharField(source="category.name", read_only=True)
+    comments = CommentSerializer(many=True, read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
         source="category",
         write_only=True,
     )
-    comments = CommentSerializer(
-        many=True, read_only=True
-    )  # Include all comments related to the post
-    image = serializers.ImageField(required=True)  # Include image field
+    image = serializers.ImageField(required=True)
 
     class Meta:
         model = Post
@@ -154,6 +143,22 @@ class PostSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+
+# Category Serializer
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["id", "name", "description"]
+
+
+# Category Detail Serializer
+class CategoryDetailSerializer(serializers.ModelSerializer):
+    posts = PostSerializer(source="posts.all", many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ["id", "name", "description", "posts"]
 
 
 # UserSerializer
