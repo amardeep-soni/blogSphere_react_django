@@ -4,7 +4,7 @@ import BlogCard from './BlogCard';
 const Category = () => {
     const { name } = useParams();
     return (
-        <div className="bg-gray-50">
+        <>
             {/* Hero Section */}
             <div className="w-full relative text-white h-44 overflow-hidden">
                 <img
@@ -29,7 +29,7 @@ const Category = () => {
                 </div>
             </div>
 
-            <div className='container bg-white mx-auto px-4'>
+            <div className='container mx-auto px-4'>
                 <h1 className='text-3xl font-bold py-5'>Posts in <span className='text-blue-600 uppercase'>{name}</span> Category</h1>
                 {/* Blog Post Cards */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6">
@@ -38,7 +38,7 @@ const Category = () => {
                     ))}
                 </div>
             </div>
-        </div>
+        </>
     )
 }
 

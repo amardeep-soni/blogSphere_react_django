@@ -4,7 +4,7 @@ const BlogDetail = () => {
     const { slug } = useParams();
 
     return (
-        <div className="bg-gray-50">
+        <>
             {/* Hero Section */}
             <div className="w-full relative text-white h-44 overflow-hidden">
                 <img
@@ -95,7 +95,7 @@ const BlogDetail = () => {
                     </div>
                 </form>
             </div>
-        </div>
+        </>
     )
 }
 

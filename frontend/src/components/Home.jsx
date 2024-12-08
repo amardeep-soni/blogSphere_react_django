@@ -11,7 +11,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="bg-gray-50">
+    <>
       {/* Hero Section */}
       <div className="w-full relative text-white h-72 overflow-hidden">
         <img
@@ -93,7 +93,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
