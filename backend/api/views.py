@@ -69,6 +69,15 @@ class PostListCreateView(generics.ListCreateAPIView):
         serializer.save(author=self.request.user)
 
 
+# Recent Blog Posts View
+class RecentPostListView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [AllowAny]  # Public access to recent posts
+
+    def get_queryset(self):
+        return Post.objects.order_by("-created_at")[:6]  # Get 6 most recent posts
+
+
 # Post Detail View
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.select_related("author")

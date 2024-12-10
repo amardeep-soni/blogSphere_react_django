@@ -7,6 +7,7 @@ from .views import (
     LoginTokenView,
     PostDetailView,
     PostListCreateView,
+    RecentPostListView,
     RegisterView,
     UserListView,
     UserDetailView,
@@ -21,6 +22,7 @@ urlpatterns = [
     path("users/<str:username>/", UserDetailView.as_view(), name="user-detail"),
     # Post URLs
     path("posts/", PostListCreateView.as_view(), name="post-list-create"),
+    path("posts/recent/", RecentPostListView.as_view(), name="recent-posts"),
     path("posts/<slug:slug>/", PostDetailView.as_view(), name="post-detail"),
     # Category URLs
     path("category/", CategoryListCreateView.as_view(), name="category-list-create"),
