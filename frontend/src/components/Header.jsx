@@ -1,9 +1,85 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import apiClient from "./ApiClient";
+// import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  // const navigate = useNavigate();
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isProfleOpen, setIsProfleOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const categories = ["Technology", "Health", "Education", "Sports", "Finance"];
+
+  const [profile, setProfile] = useState(null);
+  const username = localStorage.getItem("username");
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await apiClient.get(`/users/${username}/`);
+        const data = response.data; // User profile data
+        console.log(data);
+
+        setProfile(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (username) fetchProfile();
+  }, [username]);
+
+  const logout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("username");
+
+    window.location.href = '/'
+  };
+
+  const AuthButton = () => {
+    return (
+      <div className="flex gap-2 items-center">
+        {profile ? (
+          <div
+            className="relative"
+            onMouseEnter={() => { setIsProfleOpen(true); setIsCategoryOpen(false) }}
+            onClick={() => setIsProfleOpen(!isProfleOpen)}
+          >
+            <a className="block w-10 h-10 rounded-full overflow-hidden border-2 border-slate-400 object-cover cursor-pointer">
+              <img src={profile.photo} alt="" />
+            </a>
+
+            {isProfleOpen && (
+              <ul className="absolute right-0 mt-2 bg-white border border-gray-200 rounded shadow-md w-48 z-10" onMouseLeave={() => setIsProfleOpen(false)} onClick={() => { setIsProfleOpen(false); setIsMenuOpen(false) }}>
+                <li>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition"
+                  >
+                    Profile
+                  </a>
+                </li>
+                <li>
+                  <a
+                    onClick={logout}
+                    className="block px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition"
+                  >
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            )}
+          </div>
+        ) : (
+          <a
+            href="/login"
+            className="px-8 py-2 bg-blue-600 text-white rounded-full hover:opacity-80"
+          >
+            Login
+          </a>
+        )}
+      </div>
+    )
+  }
 
   return (
     <nav className="bg-white shadow-md">
@@ -63,7 +139,7 @@ const Header = () => {
             {/* Category Dropdown */}
             <li
               className="relative"
-              onMouseEnter={() => setIsCategoryOpen(true)}
+              onMouseEnter={() => { setIsCategoryOpen(true); setIsProfleOpen(false) }}
               onClick={() => setIsCategoryOpen(!isCategoryOpen)}
             >
               <button className="px-4 py-2 hover:text-blue-600 flex items-center w-full">
@@ -105,20 +181,4 @@ const Header = () => {
   );
 };
 
-const AuthButton = () => {
-  return (
-    <div className="flex gap-2 items-center">
-      <a
-        href="#login"
-        className="px-8 py-2 bg-blue-600 text-white rounded-full hover:opacity-80"
-      >
-        Login
-      </a>
-
-      {/* <a className="block w-10 h-10 rounded-full overflow-hidden border-2 border-slate-400 object-cover">
-        <img src="https://cdn.pixabay.com/photo/2015/03/04/22/35/avatar-659652_640.png" alt="" />
-      </a> */}
-    </div>
-  )
-}
 export default Header;
