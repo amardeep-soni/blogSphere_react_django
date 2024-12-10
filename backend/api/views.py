@@ -105,18 +105,27 @@ class IsPostAuthor(permissions.BasePermission):
         return obj.author == request.user
 
 
-# Category Views
+# Category List and Create View
 class CategoryListCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == "GET":  # Allow unauthenticated GET requests
+            return [AllowAny()]
+        return [IsAuthenticated()]  # Require authentication for POST
 
 
+# Category Detail, Update, and Delete View
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
-    permission_classes = [IsAuthenticated]
-    serializer_class = CategoryDetailSerializer  # Ensure this serializer includes posts
-    lookup_field = "name"  # Use 'name' as the lookup field
+    serializer_class = CategoryDetailSerializer
+    lookup_field = "name"
+
+    def get_permissions(self):
+        if self.request.method == "GET":  # Allow unauthenticated GET requests
+            return [AllowAny()]
+        return [IsAuthenticated()]  # Require authentication for PUT, PATCH, DELETE
 
 
 # Comment Views
