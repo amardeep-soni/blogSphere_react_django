@@ -50,8 +50,17 @@ class UserListView(generics.ListAPIView):
 class UserDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
     lookup_field = "username"  # Fetch user details via username
+
+    # Allow unauthenticated users to view the user details
+    def get_permissions(self):
+        if self.request.method == "GET":
+            self.permission_classes = [AllowAny]  # Allow anyone to view user details
+        else:
+            self.permission_classes = [
+                IsAuthenticated
+            ]  # Require authentication for other actions
+        return super().get_permissions()
 
 
 # Post List and Create View
