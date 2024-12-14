@@ -152,20 +152,31 @@ class CommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [AllowAny]  # Allow anyone to submit comments
 
+    def get_queryset(self):
+        # Fetch comments ordered by latest created_at first
+        return Comment.objects.all().order_by('-created_at')
+        
     def perform_create(self, serializer):
-        # Get the slug from the request data
+        # Extract slug from request data and associate the post
         slug = self.request.data.get("slug")
         if not slug:
             raise ValidationError({"slug": "This field is required."})
 
-        # Retrieve the post using the slug
         try:
             post = Post.objects.get(slug=slug)
         except Post.DoesNotExist:
             raise NotFound("Post with the given slug does not exist.")
 
-        # Save the comment with the associated post
+        # Save the comment
         serializer.save(post=post)
+
+    def create(self, request, *args, **kwargs):
+        """
+        Override the create method to return the newly created comment,
+        including the user_image field.
+        """
+        response = super().create(request, *args, **kwargs)
+        return Response(response.data, status=status.HTTP_201_CREATED)
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):

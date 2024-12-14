@@ -95,10 +95,22 @@ class LoginTokenSerializer(TokenObtainPairSerializer):
 # Comment Serializer
 class CommentSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(write_only=True)  # Accept slug for creating a comment
+    user_image = serializers.SerializerMethodField()  # Fetch user image dynamically
+    username = serializers.SerializerMethodField()   # Fetch user name dynamically
 
     class Meta:
         model = Comment
-        fields = ["id", "post", "slug", "name", "email", "content", "created_at"]
+        fields = [
+            "id",
+            "post",
+            "slug",
+            "name",
+            "email",
+            "content",
+            "created_at",
+            "user_image",
+            "username",
+        ]
         read_only_fields = ["post", "created_at"]
 
     def validate_slug(self, value):
@@ -110,17 +122,37 @@ class CommentSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        slug = validated_data.pop("slug")  # Extract the slug from validated data
-        post = Post.objects.get(slug=slug)  # Fetch the post using the slug
-        validated_data["post"] = post  # Assign the post to the comment
+        # Extract slug and get the associated post
+        slug = validated_data.pop("slug")
+        post = Post.objects.get(slug=slug)
+        validated_data["post"] = post
         return super().create(validated_data)
+
+    def get_user_image(self, obj):
+        try:
+            # Find user by email
+            user = User.objects.get(email=obj.email)
+            # Check if the user has a profile with a photo
+            if user.profile and user.profile.photo:
+                return user.profile.photo.url
+        except User.DoesNotExist:
+            pass  # User doesn't exist
+
+        return "not found"  # Default value
+    
+    def get_username(self, obj):
+        try:
+            user = User.objects.get(email=obj.email)
+            return user.username  # Return the username if the user exists
+        except User.DoesNotExist:
+            return "not found"  # Return 'not found' if no user is found
 
 
 # PostSerializer
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()
     category = serializers.CharField(source="category.name", read_only=True)
-    comments = CommentSerializer(many=True, read_only=True)
+    comments = serializers.SerializerMethodField()
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
         source="category",
@@ -143,6 +175,12 @@ class PostSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def get_comments(self, obj):
+        # Sort comments by latest created_at first
+        comments = obj.comments.all().order_by('-created_at')
+        return CommentSerializer(comments, many=True).data
+
 
 
 # Category Serializer
