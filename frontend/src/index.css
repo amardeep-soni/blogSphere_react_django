@@ -19,10 +19,10 @@
 }
 
 .card, .card img {
-  transition: transform 0.8s;
+  transition: all 0.8s;
 }
 .card:hover {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 .card:hover img {
   transform: scale(1.3);

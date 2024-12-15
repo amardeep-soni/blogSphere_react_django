@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Register() {
     const navigate = useNavigate();
@@ -13,8 +15,7 @@ export default function Register() {
         photo: null, // File input
     });
 
-    const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
+    const [loading, setLoading] = useState(false); // Loading state
     const [fieldErrors, setFieldErrors] = useState({});
 
     const handleInputChange = (e) => {
@@ -33,17 +34,12 @@ export default function Register() {
     };
 
     const registerForm = async (e) => {
-        console.log(formData);
-
         e.preventDefault();
-
-        // Reset error and success messages before submission
-        setErrorMessage('');
-        setSuccessMessage('');
         setFieldErrors({}); // Reset field errors
+        setLoading(true); // Start loading
 
         try {
-            const apiUrl = 'http://127.0.0.1:8000/api/register/'; // Your API endpoint
+            const apiUrl = 'http://127.0.0.1:8000/api/register/';
             const data = new FormData();
             data.append('first_name', formData.first_name);
             data.append('last_name', formData.last_name);
@@ -60,28 +56,26 @@ export default function Register() {
 
             const result = await response.json();
 
-            // Check if the response is OK (status code 2xx)
             if (!response.ok) {
-                // If backend returns specific validation errors
+                // Handle validation errors
                 if (!result.message) {
-                    setFieldErrors(result); // Set field-specific errors
+                    setFieldErrors(result);
                 } else if (result.message) {
-                    setErrorMessage(result.message); // General message error
+                    toast.error(result.message); // General API error
                 } else {
-                    // For other unexpected errors
-                    setErrorMessage('Something went wrong on the server. Please try again later.');
+                    toast.error('Something went wrong on the server. Please try again later.');
                 }
                 return;
             }
 
-            // If the registration is successful
-            setSuccessMessage('Registration successful!');
-            navigate('/login'); // Redirect to login page after successful registration
-
+            // Success
+            toast.success('Registration successful! Redirecting...');
+            navigate('/login');
         } catch (error) {
-            // Handle fetch or network error
-            setErrorMessage('An error occurred while submitting the form. Please try again.');
+            toast.error('An error occurred while submitting the form. Please try again.');
             console.error(error);
+        } finally {
+            setLoading(false); // Stop loading
         }
     };
 
@@ -89,8 +83,6 @@ export default function Register() {
         <div className='bg-white rounded-xl p-4 w-[480px] mx-auto my-4 shadow-xl'>
             <p className='text-3xl font-bold mb-4 text-center'>Register</p>
             <form className='flex flex-col gap-3' onSubmit={registerForm}>
-                {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-                {successMessage && <p className="text-green-500">{successMessage}</p>}
                 <div>
                     <label>Email</label>
                     <input
@@ -103,7 +95,6 @@ export default function Register() {
                     />
                     {fieldErrors.email && <p className="text-red-500 text-sm">{fieldErrors.email[0]}</p>}
                 </div>
-
                 <div>
                     <label>Username</label>
                     <input
@@ -129,7 +120,6 @@ export default function Register() {
                         />
                         {fieldErrors.first_name && <p className="text-red-500 text-sm">{fieldErrors.first_name[0]}</p>}
                     </div>
-
                     <div>
                         <label>Last Name</label>
                         <input
@@ -143,7 +133,6 @@ export default function Register() {
                         {fieldErrors.last_name && <p className="text-red-500 text-sm">{fieldErrors.last_name[0]}</p>}
                     </div>
                 </div>
-
                 <div>
                     <label>Password</label>
                     <input
@@ -157,7 +146,6 @@ export default function Register() {
                     />
                     {fieldErrors.password && <p className="text-red-500 text-sm">{fieldErrors.password[0]}</p>}
                 </div>
-
                 <div>
                     <label>Bio</label>
                     <textarea
@@ -167,9 +155,7 @@ export default function Register() {
                         className={`bg-blue-100 p-2 rounded-lg focus-visible:outline-none lg w-full text-slate-700 ${fieldErrors.bio ? 'border-2 border-red-500' : ''}`}
                         rows="2"
                     />
-                    {fieldErrors.bio && <p className="text-red-500 text-sm">{fieldErrors.bio[0]}</p>}
                 </div>
-
                 <div>
                     <label>Profile</label>
                     <input
@@ -180,10 +166,12 @@ export default function Register() {
                         className={`bg-blue-100 p-2 rounded-lg focus-visible:outline-none lg w-full text-slate-700 ${fieldErrors.photo ? 'border-2 border-red-500' : ''}`}
                     />
                 </div>
-                {fieldErrors.photo && <p className="text-red-500 text-sm">{fieldErrors.photo[0]}</p>}
-
-                <button type="submit" className="bg-blue-500 text-white p-2 rounded-lg">
-                    Register
+                <button
+                    type="submit"
+                    className="bg-blue-500 text-white p-2 rounded-lg"
+                    disabled={loading} // Disable when loading
+                >
+                    {loading ? 'Registering...' : 'Register'}
                 </button>
             </form>
         </div>

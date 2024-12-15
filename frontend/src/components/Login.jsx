@@ -1,8 +1,9 @@
 import { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -12,6 +13,7 @@ export default function Login() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        console.log(`Input Change - Field: ${name}, Value: ${value}`); // Debug log
         setFormData(prevState => ({
             ...prevState,
             [name]: value,
@@ -20,53 +22,72 @@ export default function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('Form submission initiated'); // Debug log
         setIsLoading(true);
         setErrorMessage(''); // Reset previous error message
+        toast.info('Logging in, please wait...'); // Show loading toast
 
+        console.log('Current form data:', formData); // Debug log
         // Client-side validation for password length
         if (formData.password.length < 6) {
+            console.log('Password validation failed - Less than 6 characters'); // Debug log
             setIsLoading(false);
             setErrorMessage('Password must be at least 6 characters long.');
+            toast.error('Password must be at least 6 characters long.');
             return;
         }
 
         try {
+            console.log('Sending API request to: http://127.0.0.1:8000/api/login/'); // Debug log
             const response = await fetch('http://127.0.0.1:8000/api/login/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
 
+            console.log('Response status:', response.status); // Debug log
             if (!response.ok) {
                 const errorData = await response.json();
+                console.log('Error response data:', errorData); // Debug log
                 if (errorData.detail) {
+                    console.log('Error Detail:', errorData.detail); // Debug log
                     setErrorMessage(errorData.detail); // Set error message from response
+                    toast.error(errorData.detail);
                 } else if (errorData.username || errorData.password) {
-                    // Handle specific field validation errors
+                    console.log('Field errors - Username:', errorData.username, 'Password:', errorData.password); // Debug log
                     setErrorMessage(`Errors: ${errorData.username?.join(', ')} ${errorData.password?.join(', ')}`);
+                    toast.error(`Errors: ${errorData.username?.join(', ')} ${errorData.password?.join(', ')}`);
                 } else {
                     setErrorMessage('An unexpected error occurred. Please try again.');
+                    toast.error('An unexpected error occurred. Please try again.');
                 }
                 setIsLoading(false);
                 return;
             }
 
             const data = await response.json();
-            console.log('Login successful:', data); // You can remove this after debugging
+            console.log('Login successful - Response data:', data); // Debug log
+
+            toast.success('Login successful!'); // Show success toast
 
             // Store token and user info in localStorage or state management as needed
+            console.log('Storing tokens in localStorage'); // Debug log
             localStorage.setItem('accessToken', data.access);
             localStorage.setItem('refreshToken', data.refresh);
             localStorage.setItem('username', data.username);
 
             // Redirect to another page after successful login
-            // navigate('/');
-            window.location.href = '/'
+            console.log('Redirecting to home page'); // Debug log
+            // window.location.href = '/';
+            navigate('/');
 
         } catch (error) {
+            console.error('Fetch error:', error); // Debug log
             setIsLoading(false);
             setErrorMessage('An unexpected error occurred. Please try again.');
-            console.error('Login error:', error);
+            toast.error('An unexpected error occurred. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -79,7 +100,7 @@ export default function Login() {
                     <label className='text-xl mb-2'>Username/Email</label>
                     <input
                         type="text"
-                        name="username" // Update to match the state property
+                        name="username"
                         value={formData.username}
                         onChange={handleInputChange}
                         className='bg-blue-100 p-2 rounded-lg focus-visible:outline-none text-xl w-full text-slate-700'
@@ -90,7 +111,7 @@ export default function Login() {
                     <label className='text-xl mb-2'>Password</label>
                     <input
                         type="password"
-                        name="password" // Update to match the state property
+                        name="password"
                         value={formData.password}
                         onChange={handleInputChange}
                         className='bg-blue-100 p-2 rounded-lg focus-visible:outline-none text-xl w-full text-slate-700'

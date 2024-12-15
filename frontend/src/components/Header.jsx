@@ -1,95 +1,116 @@
 import { useEffect, useState } from "react";
 import apiClient from "./ApiClient";
-// import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
+  const BASE_URL = "http://127.0.0.1:8000/api";
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isProfleOpen, setIsProfleOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const categories = ["Technology", "Health", "Education", "Sports", "Finance"];
-
+  const [categories, setCategories] = useState([]);
   const [profile, setProfile] = useState(null);
   const username = localStorage.getItem("username");
+
+  const getCategories = async () => {
+    const response = await fetch(BASE_URL + '/category/', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.ok) {
+      const res = await response.json();
+      const categoryNames = res.map(c => c.name);
+      setCategories(categoryNames);
+    }
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await apiClient.get(`/users/${username}/`);
-        const data = response.data; // User profile data
-        console.log(data);
-
-        setProfile(data);
+        setProfile(response.data);
       } catch (err) {
         console.error(err);
       }
     };
 
     if (username) fetchProfile();
+    getCategories();
   }, [username]);
 
   const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("username");
-
-    window.location.href = '/'
+    navigate('/');
   };
 
   const AuthButton = () => {
     return (
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-4 items-center">
         {profile ? (
           <div
             className="relative"
-            onMouseEnter={() => { setIsProfleOpen(true); setIsCategoryOpen(false) }}
-            onClick={() => setIsProfleOpen(!isProfleOpen)}
+            onMouseEnter={() => { setIsProfileOpen(true); setIsCategoryOpen(false) }}
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
             <a className="block w-10 h-10 rounded-full overflow-hidden border-2 border-slate-400 object-cover cursor-pointer">
-              <img src={profile.photo} alt="" />
+              <img src={profile.photo} alt="Profile" />
             </a>
 
-            {isProfleOpen && (
-              <ul className="absolute right-0 mt-2 bg-white border border-gray-200 rounded shadow-md w-48 z-10" onMouseLeave={() => setIsProfleOpen(false)} onClick={() => { setIsProfleOpen(false); setIsMenuOpen(false) }}>
+            {isProfileOpen && (
+              <ul className="absolute right-0 mt-2 bg-white border border-gray-200 rounded shadow-md w-48 z-10" onMouseLeave={() => setIsProfileOpen(false)}>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to={`/author/${username}`}
                     className="block px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition"
                   >
                     Profile
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <button
                     onClick={logout}
                     className="block px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition"
                   >
                     Logout
-                  </a>
+                  </button>
                 </li>
               </ul>
             )}
           </div>
         ) : (
-          <a
-            href="/login"
-            className="px-8 py-2 bg-blue-600 text-white rounded-full hover:opacity-80"
+          <Link
+            to="/login"
+            className="px-8 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
           >
             Login
-          </a>
+          </Link>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4 flex-col md:flex-row">
-          <div className="flex w-full justify-between">
+          <div className="flex w-full justify-between items-center">
             {/* Logo */}
-            <img src="/img/logo-landscape.png" className="w-48" alt="logo" />
+            <Link
+              to="/"
+              className="w-48 cursor-pointer"
+            >
+              <img
+                src="/img/logo-landscape.png"
+                className="w-48"
+                alt="logo"
+              />
+            </Link>
+
             {/* Mobile Menu Toggle */}
-            <div className="flex gap-4 items-center">
+            <div className="flex items-center gap-4">
               <div className="block md:hidden">
                 <AuthButton />
               </div>
@@ -108,38 +129,37 @@ const Header = () => {
 
           {/* Navigation Links */}
           <ul
-            className={`${isMenuOpen ? "block" : "hidden"
-              } md:flex gap-2 w-full md:w-auto text-lg`}
+            className={`${isMenuOpen ? "block" : "hidden"} md:flex gap-2 w-full md:w-auto text-lg`}
           >
             <li>
-              <a
-                href="#home"
-                className="block px-4 py-2 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600"
+              <Link
+                to="#home"
+                className="block px-4 py-2 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600 transition"
               >
                 Home
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                href="#about"
-                className="block px-4 py-2 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600"
+              <Link
+                to="#about"
+                className="block px-4 py-2 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600 transition"
               >
                 About
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                href="#contact"
-                className="block px-4 py-2 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600"
+              <Link
+                to="#contact"
+                className="block px-4 py-2 hover:text-blue-600 border-b-2 border-transparent hover:border-blue-600 transition"
               >
                 Contact
-              </a>
+              </Link>
             </li>
 
             {/* Category Dropdown */}
             <li
               className="relative"
-              onMouseEnter={() => { setIsCategoryOpen(true); setIsProfleOpen(false) }}
+              onMouseEnter={() => { setIsCategoryOpen(true); setIsProfileOpen(false) }}
               onClick={() => setIsCategoryOpen(!isCategoryOpen)}
             >
               <button className="px-4 py-2 hover:text-blue-600 flex items-center w-full">
@@ -153,15 +173,15 @@ const Header = () => {
 
               {/* Dropdown List */}
               {isCategoryOpen && (
-                <ul className="absolute left-0 mt-2 bg-white border border-gray-200 rounded shadow-md w-48 z-10" onMouseLeave={() => setIsCategoryOpen(false)} onClick={() => { setIsCategoryOpen(false); setIsMenuOpen(false) }}>
+                <ul className="absolute left-0 mt-2 bg-white border border-gray-200 rounded shadow-md w-48 z-10" onMouseLeave={() => setIsCategoryOpen(false)}>
                   {categories.map((category, index) => (
                     <li key={index}>
-                      <a
-                        href={`#${category.toLowerCase()}`}
+                      <Link
+                        to={`/category/${category}`}
                         className="block px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition"
                       >
                         {category}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -171,11 +191,7 @@ const Header = () => {
               <AuthButton />
             </div>
           </ul>
-
-
-
         </div>
-
       </div>
     </nav>
   );
