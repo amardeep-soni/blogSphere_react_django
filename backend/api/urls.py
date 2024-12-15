@@ -11,6 +11,7 @@ from .views import (
     RegisterView,
     UserListView,
     UserDetailView,
+    DashboardView,
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -30,4 +31,5 @@ urlpatterns = [
     # Comment URLs
     path("comments/", CommentListCreateView.as_view(), name="comment-list-create"),
     path("comments/<int:pk>/", CommentDetailView.as_view(), name="comment-detail"),
+    path("dashboard/", DashboardView.as_view(), name="dashboard"),
 ]

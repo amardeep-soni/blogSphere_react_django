@@ -18,6 +18,7 @@ from .models import Category, Post, Comment
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.permissions import AllowAny
+from django.http import JsonResponse
 
 
 # Register View
@@ -154,8 +155,8 @@ class CommentListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         # Fetch comments ordered by latest created_at first
-        return Comment.objects.all().order_by('-created_at')
-        
+        return Comment.objects.all().order_by("-created_at")
+
     def perform_create(self, serializer):
         # Extract slug from request data and associate the post
         slug = self.request.data.get("slug")
@@ -183,3 +184,59 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.select_related("post")
     serializer_class = CommentSerializer
     permission_classes = [AllowAny]
+
+
+class DashboardView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # Total posts created by the user
+        posts = Post.objects.filter(author=user)
+        total_posts = posts.count()
+
+        # Total comments for all posts created by the user
+        total_comments = Comment.objects.filter(post__in=posts).count()
+
+        # Latest 4 posts
+        recent_posts = posts.order_by("-created_at")[:4]
+
+        # Recent 4 comments for all posts created by the user
+        recent_comments = Comment.objects.filter(post__in=posts).order_by(
+            "-created_at"
+        )[:4]
+
+        # Prepare recent posts with their individual comment count
+        posts_data = [
+            {
+                "title": post.title,
+                "created_at": post.created_at,
+                "content": post.content,
+                "comments_count": post.comments.count(),
+                "slug": post.slug,
+            }
+            for post in recent_posts
+        ]
+
+        # Prepare recent comments data
+        comments_data = [
+            {
+                "content": comment.content,
+                "post": comment.post.title,
+                "created_at": comment.created_at,
+                "name": comment.name,
+                "slug": comment.post.slug,
+            }
+            for comment in recent_comments
+        ]
+
+        # Response data
+        response = {
+            "totalPosts": total_posts,
+            "totalComments": total_comments,
+            "recentPosts": posts_data,
+            "recentComments": comments_data,
+        }
+
+        return JsonResponse(response, safe=False)
