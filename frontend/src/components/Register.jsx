@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function Register() {
+    const BASE_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         first_name: '',
@@ -39,7 +40,6 @@ export default function Register() {
         setLoading(true); // Start loading
 
         try {
-            const apiUrl = 'http://127.0.0.1:8000/api/register/';
             const data = new FormData();
             data.append('first_name', formData.first_name);
             data.append('last_name', formData.last_name);
@@ -49,7 +49,7 @@ export default function Register() {
             data.append('bio', formData.bio);
             if (formData.photo) data.append('photo', formData.photo);
 
-            const response = await fetch(apiUrl, {
+            const response = await fetch(BASE_URL + '/register/', {
                 method: 'POST',
                 body: data,
             });
@@ -69,7 +69,7 @@ export default function Register() {
             }
 
             // Success
-            toast.success('Registration successful! Redirecting...');
+            toast.success('Registration successful.');
             navigate('/login');
         } catch (error) {
             toast.error('An error occurred while submitting the form. Please try again.');

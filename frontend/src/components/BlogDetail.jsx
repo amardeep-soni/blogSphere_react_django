@@ -9,7 +9,7 @@ const BlogDetail = () => {
     const [showAllComments, setShowAllComments] = useState(false); // State to toggle comments display
     const [loading, setLoading] = useState(true); // Loading state
     const [error, setError] = useState(null); // Error state
-    const BASE_URL = "http://127.0.0.1:8000/api"; // Your API base URL
+    const BASE_URL = import.meta.env.VITE_API_URL; // Your API base URL
 
     const getBlogDetail = async () => {
         try {

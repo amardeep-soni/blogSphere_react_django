@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
+    const BASE_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
@@ -25,7 +26,6 @@ export default function Login() {
         console.log('Form submission initiated'); // Debug log
         setIsLoading(true);
         setErrorMessage(''); // Reset previous error message
-        toast.info('Logging in, please wait...'); // Show loading toast
 
         console.log('Current form data:', formData); // Debug log
         // Client-side validation for password length
@@ -38,8 +38,7 @@ export default function Login() {
         }
 
         try {
-            console.log('Sending API request to: http://127.0.0.1:8000/api/login/'); // Debug log
-            const response = await fetch('http://127.0.0.1:8000/api/login/', {
+            const response = await fetch(BASE_URL + '/login/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),

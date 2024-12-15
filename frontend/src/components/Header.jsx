@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const navigate = useNavigate();
-  const BASE_URL = "http://127.0.0.1:8000/api";
+  const BASE_URL = import.meta.env.VITE_API_URL;
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
