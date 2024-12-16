@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import apiClient from './ApiClient';
 import DeleteDialog from './DeleteDialog';
 
 const Dashboard = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const BASE_URL = import.meta.env.VITE_API_URL; // Your API base URL
     const [dashboardData, setDashboardData] = useState({
         totalPosts: 0,
@@ -59,7 +60,9 @@ const Dashboard = () => {
 
     // In Dashboard.jsx
     const handleEdit = (slug) => {
-        navigate(`/posts/edit/${slug}`);
+        navigate(`/posts/edit/${slug}`, {
+            state: { from: location.pathname }
+        });
     };
 
     const handleDelete = (slug) => {
@@ -127,13 +130,13 @@ const Dashboard = () => {
                                 <h3 className="text-2xl font-bold">Latest Posts</h3>
                                 <div className='flex gap-2 items-center'>
                                     <Link to="/posts" className='text-blue-500 mr-4'>View All</Link>
-                                    <Link
-                                        to="/posts/new"
+                                    <button
+                                        onClick={() => navigate('/posts/new', { state: { from: location.pathname } })}
                                         className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg transition-colors duration-200 flex items-center gap-2"
                                     >
                                         <i className="fas fa-plus"></i>
                                         New Post
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                             <div className="space-y-4">
@@ -203,7 +206,7 @@ const Dashboard = () => {
                     </div>
                 </div>
             )}
-            <DeleteDialog 
+            <DeleteDialog
                 isOpen={showDeleteDialog}
                 onClose={() => {
                     setShowDeleteDialog(false);

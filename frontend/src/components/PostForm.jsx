@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, Link, useParams } from 'react-router-dom';
+import { useNavigate, Link, useParams, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Select from 'react-select';
 import ReactQuill from 'react-quill';
@@ -10,6 +10,8 @@ import CreateCategoryDialog from './CreateCategoryDialog';
 
 const PostForm = ({ mode = 'create' }) => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from || '/dashboard'; // Default to dashboard if no previous location
     const { slug } = useParams();
     const [formData, setFormData] = useState({
         title: '',
@@ -18,6 +20,9 @@ const PostForm = ({ mode = 'create' }) => {
         category_id: '',
         image: null
     });
+    
+    console.log(location);
+    
     const [categories, setCategories] = useState([]);
     const [showCategoryDialog, setShowCategoryDialog] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
@@ -217,7 +222,7 @@ const PostForm = ({ mode = 'create' }) => {
                 toast.success('Post created successfully!');
             }
 
-            navigate(`/blog/${response.data.slug}`);
+            navigate(from);
         } catch (error) {
             console.error(`Error ${mode === 'edit' ? 'updating' : 'creating'} post:`, error);
             toast.error(`Failed to ${mode === 'edit' ? 'update' : 'create'} post. Please try again.`);
@@ -380,7 +385,7 @@ const PostForm = ({ mode = 'create' }) => {
 
                         <div className="flex justify-end gap-2 mt-20">
                             <Link
-                                to="/dashboard"
+                                to={from}
                                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
                             >
                                 Cancel

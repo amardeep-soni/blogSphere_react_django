@@ -9,6 +9,9 @@ import Register from './components/Register';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import PostForm from './components/PostForm';
+import AllPosts from './components/AllPosts';
+import Comments from './components/Comments';
+import SearchResults from './components/SearchResults';
 
 
 function App() {
@@ -27,8 +30,12 @@ function App() {
 
           {/* Dashboard */}
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="/posts" element={<AllPosts />} />
           <Route path="/posts/new" element={<PostForm mode="create" />} />
           <Route path="/posts/edit/:slug" element={<PostForm mode="edit" />} />
+          <Route path="/comments" element={<Comments />} />
+          <Route path="/comments/:slug" element={<Comments />} />
+          <Route path="/search" element={<SearchResults />} />
         </Route>
       </Routes>
     </BrowserRouter>
