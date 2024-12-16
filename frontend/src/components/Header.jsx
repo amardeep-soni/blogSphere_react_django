@@ -63,16 +63,16 @@ const Header = () => {
               <ul className="absolute right-0 mt-2 bg-white border border-gray-200 rounded shadow-md w-48 z-10" onMouseLeave={() => setIsProfileOpen(false)}>
                 <li>
                   <Link
-                    to={`/author/${username}`}
+                    to={`/dashboard`}
                     className="block px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition"
                   >
-                    Profile
+                    Dashboard
                   </Link>
                 </li>
                 <li>
                   <button
                     onClick={logout}
-                    className="block px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition"
+                    className="block px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition w-full text-left"
                   >
                     Logout
                   </button>

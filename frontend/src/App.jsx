@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Profile from './components/Profile';
 import Register from './components/Register';
 import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 
 
 function App() {
@@ -22,6 +23,9 @@ function App() {
           <Route path="blog/:slug" element={<BlogDetail />} />
           <Route path="category/:name" element={<Category />} />
           <Route path="author/:username" element={<Profile />} />
+
+          {/* Dashboard */}
+          <Route path="dashboard" element={<Dashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>
