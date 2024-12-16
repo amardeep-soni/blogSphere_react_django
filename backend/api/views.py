@@ -19,6 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.permissions import AllowAny
 from django.http import JsonResponse
+from django.db import models
 
 
 # Register View
@@ -240,3 +241,26 @@ class DashboardView(generics.RetrieveAPIView):
         }
 
         return JsonResponse(response, safe=False)
+
+
+class UserPostsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user  # Get the authenticated user
+        posts = Post.objects.filter(author=user)  # Filter posts by the user
+        serializer = PostSerializer(posts, many=True)  # Serialize the posts
+        return Response(serializer.data)
+
+
+class PostSearchView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        query = self.request.query_params.get("q", "")
+        if query:
+            return Post.objects.filter(models.Q(title__icontains=query)).order_by(
+                "-created_at"
+            )
+        return Post.objects.none()

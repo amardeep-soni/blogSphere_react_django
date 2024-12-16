@@ -94,7 +94,7 @@ class LoginTokenSerializer(TokenObtainPairSerializer):
 
 # Comment Serializer
 class CommentSerializer(serializers.ModelSerializer):
-    slug = serializers.SlugField(write_only=True)  # Accept slug for creating a comment
+    slug = serializers.SerializerMethodField()  # Accept slug for creating a comment
     user_image = serializers.SerializerMethodField()  # Fetch user image dynamically
     username = serializers.SerializerMethodField()  # Fetch user name dynamically
 
@@ -120,6 +120,12 @@ class CommentSerializer(serializers.ModelSerializer):
         except Post.DoesNotExist:
             raise serializers.ValidationError("No post found with this slug.")
         return value
+
+    def get_slug(self, obj):
+        # Fetch the slug of the related post
+        if obj.post:
+            return obj.post.slug
+        return None
 
     def create(self, validated_data):
         # Extract slug and get the associated post
