@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import apiClient from './ApiClient';
+import DeleteDialog from './DeleteDialog';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     const BASE_URL = import.meta.env.VITE_API_URL; // Your API base URL
     const [dashboardData, setDashboardData] = useState({
         totalPosts: 0,
@@ -11,6 +13,8 @@ const Dashboard = () => {
         recentComments: [],
     });
     const [loading, setLoading] = useState(true);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [postToDelete, setPostToDelete] = useState(null);
 
     const fetchDashboardData = async () => {
         try {
@@ -53,12 +57,27 @@ const Dashboard = () => {
         }
     };
 
+    // In Dashboard.jsx
     const handleEdit = (slug) => {
-        console.log(`Edit post with slug: ${slug}`);
+        navigate(`/posts/edit/${slug}`);
     };
 
     const handleDelete = (slug) => {
-        console.log(`Delete post with slug: ${slug}`);
+        setPostToDelete(slug);
+        setShowDeleteDialog(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            const response = await apiClient.delete(`/posts/${postToDelete}/`);
+            if (response.status === 204) {
+                fetchDashboardData();
+                setShowDeleteDialog(false);
+                setPostToDelete(null);
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
+        }
     };
 
     return (
@@ -108,13 +127,13 @@ const Dashboard = () => {
                                 <h3 className="text-2xl font-bold">Latest Posts</h3>
                                 <div className='flex gap-2 items-center'>
                                     <Link to="/posts" className='text-blue-500 mr-4'>View All</Link>
-                                    <button
-                                        onClick={() => handleNewPost()}
+                                    <Link
+                                        to="/posts/new"
                                         className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg transition-colors duration-200 flex items-center gap-2"
                                     >
                                         <i className="fas fa-plus"></i>
                                         New Post
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                             <div className="space-y-4">
@@ -123,7 +142,7 @@ const Dashboard = () => {
                                         <div className="flex flex-col">
                                             <div className="flex justify-between items-start">
                                                 <div className="flex-1">
-                                                    <h4 className="font-medium text-gray-900 break-words pr-4">{post.title}</h4>
+                                                    <Link to={`/blog/${post.slug}`} className="font-medium text-gray-900 hover:text-blue-500 break-words pr-4">{post.title}</Link>
                                                 </div>
                                                 <span className="text-sm text-gray-500 whitespace-nowrap">
                                                     {formatDate(post.created_at)}
@@ -151,7 +170,7 @@ const Dashboard = () => {
                                                     </button>
                                                 </div>
                                             </div>
-                                            <p className="text-gray-600 text-sm leading-relaxed">{post.content}</p>
+                                            <p className="text-gray-600 text-sm leading-relaxed">{post.excerpt}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -184,6 +203,15 @@ const Dashboard = () => {
                     </div>
                 </div>
             )}
+            <DeleteDialog 
+                isOpen={showDeleteDialog}
+                onClose={() => {
+                    setShowDeleteDialog(false);
+                    setPostToDelete(null);
+                }}
+                onConfirm={confirmDelete}
+                message="Are you sure you want to delete this post? This action cannot be undone."
+            />
         </>
     );
 };

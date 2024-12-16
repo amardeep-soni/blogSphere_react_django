@@ -136,11 +136,13 @@ const BlogDetail = () => {
             ) : (
                 <>
                     {/* Blog Details */}
-                    <div div className="lg:w-3/4 bg-white shadow-lg p-5 sm:p-8 mx-4 lg:mx-auto my-8">
+                    <div className="lg:w-3/4 bg-white shadow-lg p-5 sm:p-8 mx-4 lg:mx-auto my-8">
                         <div className="aspect-square w-full h-48 sm:h-96 overflow-hidden mb-4">
                             <img src={blogDetail.image} className="w-full h-full object-cover" alt="Blog Image" />
                         </div>
                         <h1 className="text-3xl font-bold mb-2">{blogDetail.title}</h1>
+                        
+                        {/* Meta information */}
                         <p className="text-sm text-gray-500 mb-4 flex items-center space-x-2">
                             <a
                                 onClick={(event) => handleCategoryClick(event, blogDetail.category)}
@@ -156,7 +158,21 @@ const BlogDetail = () => {
                                 <i className="fas fa-user"></i> By {blogDetail.author}
                             </a>
                         </p>
-                        <p className="text-sm text-gray-600 mb-4 text-justify" dangerouslySetInnerHTML={{ __html: blogDetail.content }}></p>
+
+                        {/* Add excerpt here */}
+                        {blogDetail.excerpt && (
+                            <div className="mb-6 p-4 bg-gray-50 border-l-4 border-blue-500 rounded">
+                                <p className="text-lg text-gray-700 italic">
+                                    {blogDetail.excerpt}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Main content */}
+                        <p 
+                            className="text-sm text-gray-600 mb-4 text-justify" 
+                            dangerouslySetInnerHTML={{ __html: blogDetail.content }}
+                        ></p>
                     </div>
 
                     {/* Comments Section */}

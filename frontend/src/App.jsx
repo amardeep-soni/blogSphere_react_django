@@ -8,6 +8,7 @@ import Profile from './components/Profile';
 import Register from './components/Register';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import PostForm from './components/PostForm';
 
 
 function App() {
@@ -26,6 +27,8 @@ function App() {
 
           {/* Dashboard */}
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="/posts/new" element={<PostForm mode="create" />} />
+          <Route path="/posts/edit/:slug" element={<PostForm mode="edit" />} />
         </Route>
       </Routes>
     </BrowserRouter>

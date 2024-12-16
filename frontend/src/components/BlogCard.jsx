@@ -74,7 +74,9 @@ const BlogCard = ({ blog }) => {
                 </p>
 
                 {/* Blog Content Preview */}
-                <p className="text-gray-600 line-clamp-3">{blog.content}</p>
+                <p className="text-gray-600">
+                    {blog.excerpt}
+                </p>
 
                 {/* Read More Link */}
                 <a
