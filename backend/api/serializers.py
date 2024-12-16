@@ -96,7 +96,7 @@ class LoginTokenSerializer(TokenObtainPairSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(write_only=True)  # Accept slug for creating a comment
     user_image = serializers.SerializerMethodField()  # Fetch user image dynamically
-    username = serializers.SerializerMethodField()   # Fetch user name dynamically
+    username = serializers.SerializerMethodField()  # Fetch user name dynamically
 
     class Meta:
         model = Comment
@@ -139,7 +139,7 @@ class CommentSerializer(serializers.ModelSerializer):
             pass  # User doesn't exist
 
         return "not found"  # Default value
-    
+
     def get_username(self, obj):
         try:
             user = User.objects.get(email=obj.email)
@@ -165,6 +165,7 @@ class PostSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
+            "excerpt",
             "content",
             "slug",
             "image",
@@ -178,9 +179,8 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         # Sort comments by latest created_at first
-        comments = obj.comments.all().order_by('-created_at')
+        comments = obj.comments.all().order_by("-created_at")
         return CommentSerializer(comments, many=True).data
-
 
 
 # Category Serializer

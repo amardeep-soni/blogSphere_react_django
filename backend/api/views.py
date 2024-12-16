@@ -212,7 +212,7 @@ class DashboardView(generics.RetrieveAPIView):
             {
                 "title": post.title,
                 "created_at": post.created_at,
-                "content": post.content,
+                "excerpt": post.excerpt,
                 "comments_count": post.comments.count(),
                 "slug": post.slug,
             }

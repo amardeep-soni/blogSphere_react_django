@@ -18,13 +18,14 @@ class UserProfile(models.Model):
 # Create your models here.
 class Post(models.Model):
     title = models.CharField(max_length=200)
+    excerpt = models.CharField(max_length=255)
     content = models.TextField()
     slug = models.SlugField(unique=True, max_length=255, blank=True)  # Add slug field
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     category = models.ForeignKey(
         "Category", on_delete=models.CASCADE, related_name="posts"
     )
-    image = models.ImageField(upload_to="post_images/", null=True, blank=True)
+    image = models.ImageField(upload_to="post_images/", null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
