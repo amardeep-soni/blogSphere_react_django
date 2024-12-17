@@ -95,7 +95,7 @@ class LoginTokenSerializer(TokenObtainPairSerializer):
 # Comment Serializer
 class CommentSerializer(serializers.ModelSerializer):
     slug = serializers.CharField(write_only=True)
-    post_slug = serializers.CharField(source='post.slug', read_only=True)
+    post_slug = serializers.CharField(source="post.slug", read_only=True)
     user_image = serializers.SerializerMethodField()
     username = serializers.SerializerMethodField()
 
@@ -191,7 +191,7 @@ class PostSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         # Make image optional for updates
         if self.instance is not None:  # If this is an update
-            self.fields['image'].required = False
+            self.fields["image"].required = False
 
     def get_comments(self, obj):
         # Sort comments by latest created_at first
@@ -222,11 +222,9 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
 
 # UserSerializer
 class UserSerializer(serializers.ModelSerializer):
-    bio = serializers.CharField(source="profile.bio", read_only=True)
-    photo = serializers.ImageField(source="profile.photo", read_only=True)
-    posts = PostSerializer(
-        source="posts.all", many=True, read_only=True
-    )  # Nested serializer
+    bio = serializers.CharField(source='profile.bio', required=False, allow_blank=True)
+    photo = serializers.ImageField(source='profile.photo', required=False, allow_null=True)
+    posts = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -239,3 +237,22 @@ class UserSerializer(serializers.ModelSerializer):
             "photo",
             "posts",
         ]
+        read_only_fields = ["username", "email"]
+
+    def get_posts(self, obj):
+        posts = obj.posts.all().order_by('-created_at')  # Assuming reverse chronological order
+        return PostSerializer(posts, many=True).data
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        # Handle photo URL
+        if ret.get('photo'):
+            if not str(ret['photo']).startswith('http'):
+                request = self.context.get('request')
+                if request:
+                    ret['photo'] = request.build_absolute_uri(ret['photo'])
+        
+        # Ensure bio is included
+        ret['bio'] = instance.profile.bio if instance.profile else ''
+        
+        return ret

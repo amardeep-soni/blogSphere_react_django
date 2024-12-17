@@ -38,6 +38,17 @@ const Header = () => {
 
     if (username) fetchProfile();
     getCategories();
+
+    // Add event listener for profile updates
+    const handleProfileUpdate = (event) => {
+      setProfile(event.detail);
+    };
+    window.addEventListener('profileUpdate', handleProfileUpdate);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('profileUpdate', handleProfileUpdate);
+    };
   }, [username]);
 
   const logout = () => {
@@ -138,8 +149,8 @@ const Header = () => {
       <Link
         to={to}
         className={`px-4 py-2 flex items-center space-x-1 rounded-lg transition-all duration-300 
-          ${isActive(to) 
-            ? 'text-blue-600 bg-blue-50' 
+          ${isActive(to)
+            ? 'text-blue-600 bg-blue-50'
             : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'}`}
       >
         <i className={`fas ${icon}`}></i>

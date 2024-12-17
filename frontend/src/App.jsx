@@ -17,6 +17,7 @@ import Home from './components/Home';
 import About from './components/About';
 import ProtectedRoute from './ProtectedRoute';
 import ScrollToTop from './ScrollToTop'; // Import the ScrollToTop component
+import UserProfile from './components/UserProfile';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="profile" element={<UserProfile />} />
             <Route path="posts" element={<AllPosts />} />
             <Route path="posts/new" element={<PostForm mode="create" />} />
             <Route path="posts/edit/:slug" element={<PostForm mode="edit" />} />

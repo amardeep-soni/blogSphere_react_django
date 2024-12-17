@@ -20,6 +20,7 @@ from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.permissions import AllowAny
 from django.http import JsonResponse
 from django.db import models
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 # Register View
@@ -49,20 +50,52 @@ class UserListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class UserDetailView(generics.RetrieveAPIView):
+class UserDetailView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    lookup_field = "username"  # Fetch user details via username
+    lookup_field = "username"
+    parser_classes = (MultiPartParser, FormParser)
 
-    # Allow unauthenticated users to view the user details
     def get_permissions(self):
         if self.request.method == "GET":
-            self.permission_classes = [AllowAny]  # Allow anyone to view user details
+            self.permission_classes = [AllowAny]
         else:
-            self.permission_classes = [
-                IsAuthenticated
-            ]  # Require authentication for other actions
+            self.permission_classes = [IsAuthenticated]
         return super().get_permissions()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+    def update(self, request, *args, **kwargs):
+        if request.user.username != kwargs.get('username'):
+            raise PermissionDenied("You can only update your own profile")
+
+        instance = self.get_object()
+
+        # Update profile fields directly
+        if 'bio' in request.data:
+            instance.profile.bio = request.data['bio']
+            instance.profile.save()
+
+        if 'photo' in request.FILES:
+            instance.profile.photo = request.FILES['photo']
+            instance.profile.save()
+
+        # Update user fields through serializer
+        user_data = {}
+        if 'first_name' in request.data:
+            user_data['first_name'] = request.data['first_name']
+        if 'last_name' in request.data:
+            user_data['last_name'] = request.data['last_name']
+
+        serializer = self.get_serializer(instance, data=user_data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        # Return updated data
+        return Response(self.get_serializer(instance).data)
 
 
 # Post List and Create View
