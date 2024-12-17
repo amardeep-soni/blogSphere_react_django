@@ -7,6 +7,7 @@ import 'react-quill/dist/quill.snow.css';
 import { useDropzone } from 'react-dropzone';
 import apiClient from './ApiClient';
 import CreateCategoryDialog from './CreateCategoryDialog';
+import { motion } from 'framer-motion';
 
 const PostForm = ({ mode = 'create' }) => {
     const navigate = useNavigate();
@@ -178,7 +179,7 @@ const PostForm = ({ mode = 'create' }) => {
             toast.warning('Please select a category');
             return false;
         }
-        if (!formData.image) {
+        if (mode === 'create' && !formData.image && !imagePreview) {
             toast.warning('Please upload an image');
             return false;
         }
@@ -205,17 +206,21 @@ const PostForm = ({ mode = 'create' }) => {
             formDataToSend.append('excerpt', formData.excerpt.trim());
             formDataToSend.append('content', formData.content.trim());
             formDataToSend.append('category_id', formData.category_id);
-            if (formData.image) {
-                formDataToSend.append('image', formData.image);
-            }
-
+            
             let response;
             if (mode === 'edit') {
+                // For edit mode, only send image if there's a new one
+                if (formData.image) {
+                    formDataToSend.append('image', formData.image);
+                }
+                
                 response = await apiClient.put(`/posts/${slug}/`, formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
                 toast.success('Post updated successfully!');
             } else {
+                // For create mode, always send the image
+                formDataToSend.append('image', formData.image);
                 response = await apiClient.post('/posts/', formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
@@ -230,54 +235,47 @@ const PostForm = ({ mode = 'create' }) => {
     };
 
     return (
-        <>
-            {/* Hero Section */}
-            <div className="w-full relative text-white h-56 overflow-hidden shadow-lg">
-                <img
-                    src="/img/heroImage.jpeg"
-                    className="absolute w-full h-full object-cover opacity-80"
-                    alt="Hero Image"
-                />
-                <div className="absolute w-full h-full bg-gradient-to-t from-black to-transparent flex items-center flex-col justify-center gap-3 p-5">
-                    <h1 className="text-5xl font-bold text-center drop-shadow-md mb-3">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-16 px-4 sm:px-6 lg:px-8">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="max-w-3xl mx-auto"
+            >
+                {/* Header Section */}
+                <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                         {mode === 'edit' ? 'Edit Post' : 'Create New Post'}
                     </h1>
-                    <nav aria-label="breadcrumb text-xl" className="w-max drop-shadow-md">
-                        <ol className="flex w-full flex-wrap items-center rounded-md bg-slate-50 px-4 py-2">
-                            <li className="flex items-center text-sm text-slate-500">
-                                <Link to="/">Home</Link>
-                                <span className="mx-2 text-slate-800">/</span>
-                            </li>
-                            <li className="flex items-center text-sm text-slate-500">
-                                <Link to="/dashboard">Dashboard</Link>
-                                <span className="mx-2 text-slate-800">/</span>
-                            </li>
-                            <li className="text-sm text-blue-500">
-                                {mode === 'edit' ? 'Edit Post' : 'Create Post'}
-                            </li>
-                        </ol>
-                    </nav>
+                    <p className="mt-3 text-gray-600">
+                        {mode === 'edit' ? 'Update your post details' : 'Share your thoughts with the world'}
+                    </p>
                 </div>
-            </div>
 
-            <div className="container mx-auto px-4 py-8">
-                <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-6">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="bg-white rounded-3xl shadow-2xl p-8 backdrop-blur-lg bg-opacity-80"
+                >
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Title Input */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Title <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 transition-all duration-200 outline-none"
                                 required
                             />
                         </div>
 
-                        <div className="mb-6">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
+                        {/* Excerpt Input */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Excerpt <span className="text-red-500">*</span>
                                 <span className="text-gray-500 font-normal ml-2">
                                     ({255 - formData.excerpt.length} characters remaining)
@@ -286,47 +284,45 @@ const PostForm = ({ mode = 'create' }) => {
                             <textarea
                                 value={formData.excerpt}
                                 onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 transition-all duration-200 outline-none resize-none"
                                 rows="3"
                                 maxLength="255"
-                                placeholder="Enter a short description of your post (max 255 characters)"
                                 required
                             />
                         </div>
 
-                        <div className="mb-6">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
+                        {/* Category Select */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Category <span className="text-red-500">*</span>
                             </label>
-                            <div className="relative">
-                                <Select
-                                    options={categoryOptions}
-                                    onChange={handleCategoryChange}
-                                    value={selectedCategory}
-                                    styles={customStyles}
-                                    isClearable
-                                    isSearchable
-                                    placeholder="Select or search a category..."
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowCategoryDialog(true)}
-                                    className="mt-2 text-blue-500 hover:text-blue-600 text-sm"
-                                >
-                                    + Add New Category
-                                </button>
-                            </div>
+                            <Select
+                                options={categoryOptions}
+                                onChange={handleCategoryChange}
+                                value={selectedCategory}
+                                styles={customStyles}
+                                isClearable
+                                isSearchable
+                                placeholder="Select or search a category..."
+                                className="rounded-xl"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowCategoryDialog(true)}
+                                className="mt-2 text-blue-500 hover:text-blue-600 text-sm"
+                            >
+                                + Add New Category
+                            </button>
                         </div>
 
-                        <div className="mb-6">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
+                        {/* Image Upload */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Featured Image <span className="text-red-500">*</span>
                             </label>
                             <div
                                 {...getRootProps()}
-                                className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer
+                                className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer
                                     ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
                                     hover:border-blue-500 transition-colors duration-200`}
                             >
@@ -367,40 +363,55 @@ const PostForm = ({ mode = 'create' }) => {
                             </div>
                         </div>
 
-                        <div className="mb-6">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
+                        {/* Content Editor */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Content <span className="text-red-500">*</span>
                             </label>
-                            <div className="border rounded-lg">
+                            <div className="rounded-xl overflow-hidden border border-gray-200">
                                 <ReactQuill
                                     theme="snow"
                                     value={formData.content}
                                     onChange={handleContentChange}
                                     modules={modules}
-                                    style={{ height: '500px', marginBottom: '50px' }}
-                                    className="resize-y"
+                                    className="rounded-xl"
+                                    style={{ height: '400px', marginBottom: '50px' }}
                                 />
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-2 mt-20">
-                            <Link
-                                to={from}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                            >
-                                Cancel
-                            </Link>
-                            <button
-                                type="submit"
-                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                            >
-                                {mode === 'edit' ? 'Update Post' : 'Create Post'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+                        {/* Submit Button */}
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            type="submit"
+                            className="w-full flex justify-center items-center py-4 px-6 rounded-xl text-base font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl mt-8"
+                        >
+                            {mode === 'edit' ? 'Update Post' : 'Create Post'}
+                        </motion.button>
 
+                        <div className="relative my-6">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-300"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-white text-gray-500">or</span>
+                            </div>
+                        </div>
+
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            type="button"
+                            onClick={() => navigate(from)}
+                            className="w-full flex justify-center items-center py-3 px-6 rounded-xl text-base font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-all duration-200"
+                        >
+                            Cancel
+                        </motion.button>
+                    </form>
+                </motion.div>
+            </motion.div>
+
+            {/* Category Dialog */}
             {showCategoryDialog && (
                 <CreateCategoryDialog
                     isOpen={showCategoryDialog}
@@ -411,7 +422,7 @@ const PostForm = ({ mode = 'create' }) => {
                     }}
                 />
             )}
-        </>
+        </div>
     );
 };
 

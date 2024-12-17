@@ -1,15 +1,14 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import BlogCard from './BlogCard';
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 const Category = () => {
     const { name } = useParams();
     const navigate = useNavigate();
-
     const [category, setCategory] = useState({});
     const [loading, setLoading] = useState(true);
-
-    const BASE_URL = import.meta.env.VITE_API_URL; // Your API base URL
+    const BASE_URL = import.meta.env.VITE_API_URL;
 
     const getCategory = async () => {
         try {
@@ -36,82 +35,146 @@ const Category = () => {
     }, [name]);
 
     return (
-        <>
-            {/* Hero Section */}
-            <div className="w-full relative text-white h-56 overflow-hidden shadow-lg">
-                <img
-                    src="/img/heroImage.jpeg"
-                    className="absolute w-full h-full object-cover opacity-80"
-                    alt="Hero Image"
-                />
-                <div className="absolute w-full h-full bg-gradient-to-t from-black to-transparent flex items-center flex-col justify-center gap-3 p-5">
-                    <h1 className="text-5xl font-bold text-center drop-shadow-md mb-3">{name}</h1>
-                    <nav aria-label="breadcrumb text-xl" className="w-max drop-shadow-md">
-                        <ol className="flex w-full flex-wrap items-center rounded-md bg-slate-50 px-4 py-2">
-                            <li className="flex cursor-pointer items-center text-sm text-slate-500 transition-colors duration-300 hover:text-slate-800">
-                                <a href="/">Home</a>
-                                <span className="pointer-events-none mx-2 text-slate-800">
-                                    /
-                                </span>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            {/* Enhanced Hero Section */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="relative h-[50vh] overflow-hidden"
+            >
+                <div className="absolute inset-0">
+                    <motion.div
+                        initial={{ scale: 1.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 2, ease: "easeOut" }}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/95 via-purple-900/95 to-black/95"></div>
+                        <img
+                            src="/img/heroImage.jpeg"
+                            className="w-full h-full object-cover"
+                            alt="Category Background"
+                        />
+                    </motion.div>
+                </div>
+
+                <div className="relative h-full flex flex-col items-center justify-center text-center z-10 space-y-4 px-4">
+                    <motion.h1
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-4xl md:text-6xl font-bold text-white capitalize"
+                    >
+                        {name}
+                    </motion.h1>
+                    <motion.nav
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="mt-4"
+                    >
+                        <ol className="flex items-center rounded-md bg-white/10 backdrop-blur-md px-4 py-2">
+                            <li className="flex items-center text-sm text-gray-300">
+                                <a href="/blog" className="hover:text-white transition-colors">Blogs</a>
+                                <span className="mx-2 text-gray-400">/</span>
                             </li>
-                            <li className="flex cursor-pointer items-center text-sm text-blue-500 transition-colors duration-300 hover:text-blue-800">
-                                <a>{name}</a>
-                            </li>
+                            <li className="text-sm text-blue-400 capitalize">{name}</li>
                         </ol>
-                    </nav>
+                    </motion.nav>
                 </div>
-            </div>
+            </motion.div>
 
-            {/* Loader in Main Section */}
-            {loading ? (
-                <div className="flex justify-center items-center py-10">
-                    <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
-                </div>
-            ) : (
-                <>
-                    {/* Title and Description */}
-                    <div className="container mx-auto px-4 mt-6 text-center">
-                        <h2 className="text-4xl font-bold text-gray-800 mb-3 capitalize">{name}</h2>
-                        {category.description && (
-                            <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-6">
-                                {category.description}
+            <div className="container mx-auto px-4 py-12">
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex flex-col items-center gap-4"
+                        >
+                            <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                            <p className="text-gray-500 font-medium">Loading posts...</p>
+                        </motion.div>
+                    </div>
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="max-w-7xl mx-auto"
+                    >
+                        {/* Category Description */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                            className="bg-white rounded-2xl shadow-xl p-8 backdrop-blur-lg bg-opacity-80 mb-12"
+                        >
+                            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 capitalize">
+                                About {name}
+                            </h2>
+                            <p className="text-lg text-gray-600 leading-relaxed">
+                                {category.description || `Explore our collection of posts in the ${name} category.`}
                             </p>
-                        )}
-                    </div>
+                        </motion.div>
 
-                    {/* Blog Posts Section */}
-                    <div className="container mx-auto px-4 pb-8">
-                        <h3 className="text-3xl font-semibold mb-4 text-gray-700">
-                            Posts in <span className="text-blue-600 uppercase">{name}</span>
-                        </h3>
+                        {/* Posts Section */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                        >
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                    Post in {name}
+                                </h3>
+                                <div className="h-1 flex-1 mx-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full" />
+                            </div>
 
-                        {loading ? (
-                            // Skeleton Loader
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {Array.from({ length: 6 }).map((_, index) => (
-                                    <div
-                                        key={index}
-                                        className="animate-pulse bg-gray-200 rounded-lg h-60"
-                                    ></div>
-                                ))}
-                            </div>
-                        ) : category.posts && category.posts.length > 0 ? (
-                            // Blog Cards Grid
-                            <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6">
-                                {category.posts.map((blog) => (
-                                    <BlogCard key={blog.slug} blog={blog} />
-                                ))}
-                            </div>
-                        ) : (
-                            // No Posts Available
-                            <div className="text-center text-gray-500 mt-8">
-                                <p>No posts available in this category.</p>
-                            </div>
-                        )}
-                    </div>
-                </>
-            )}
-        </>
+                            {category.posts && category.posts.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {category.posts.map((blog, index) => (
+                                        <motion.div
+                                            key={blog.slug}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, delay: index * 0.1 }}
+                                            whileHover={{ y: -5 }}
+                                            className="transform transition-all duration-300"
+                                        >
+                                            <BlogCard blog={blog} />
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="text-center py-20 bg-white rounded-2xl shadow-xl"
+                                >
+                                    <div className="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i className="fas fa-folder-open text-blue-500 text-3xl"></i>
+                                    </div>
+                                    <h3 className="text-xl font-medium text-gray-900 mb-2">No posts available</h3>
+                                    <p className="text-gray-500 max-w-md mx-auto">
+                                        There are no posts in this category yet.
+                                        Check back later for new content!
+                                    </p>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => navigate('/')}
+                                        className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200"
+                                    >
+                                        Browse Other Categories
+                                    </motion.button>
+                                </motion.div>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </div>
+        </div>
     );
 };
 

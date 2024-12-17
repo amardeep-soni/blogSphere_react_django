@@ -1,95 +1,129 @@
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const BlogCard = ({ blog }) => {
     const navigate = useNavigate();
-
-    console.log("BlogCard component rendered with blog:", blog);
+    const BASE_URL = import.meta.env.VITE_API_URL;
 
     const handleCategoryClick = (event, category) => {
         event.stopPropagation();
-        console.log("Category clicked:", category);
         navigate(`/category/${category}`);
     };
 
     const handleAuthorClick = (event, author) => {
         event.stopPropagation();
-        console.log("Author clicked:", author);
         navigate(`/author/${author}`);
     };
 
-    // Extract date components from the blog's date
     const blogDate = new Date(blog.created_at);
     const day = blogDate.getDate();
     const month = blogDate.toLocaleString('default', { month: 'short' });
     const year = blogDate.getFullYear();
 
-    console.log("Extracted blog date:", { day, month, year });
-
     return (
-        <div
-            className="card rounded-lg overflow-hidden shadow-xl cursor-pointer bg-white transform hover:shadow-2xl"
-            onClick={() => {
-                console.log("Card clicked, navigating to blog slug:", blog.slug);
-                navigate(`/blog/${blog.slug}`);
-            }}
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            whileHover={{ y: -5 }}
+            className="group relative bg-white rounded-[2rem] overflow-hidden shadow-lg hover:shadow-2xl 
+                     transition-all duration-300 cursor-pointer h-full flex flex-col"
+            onClick={() => navigate(`/blog/${blog.slug}`)}
         >
-            {/* Blog Image Section */}
-            <div className="relative w-full h-[220px] overflow-hidden">
+            {/* Main Image */}
+            <div className="relative aspect-[5/3] overflow-hidden">
                 <img
                     src={blog.image}
                     alt={blog.title}
-                    className="w-full h-full object-cover opacity-90 transition-opacity hover:opacity-80"
+                    className="w-full h-full object-cover transform transition-transform duration-700 
+                             hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                {/* Date Badge */}
-                <div className="bg-blue-600 text-white absolute top-0 left-0 py-2 px-6 text-center rounded-br-lg">
-                    <p className="text-sm">{month}</p>
-                    <p className="text-3xl font-bold leading-tight">{day}</p>
-                    <p className="text-sm">{year}</p>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+
+                {/* Category Tag */}
+                <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm 
+                             rounded-xl p-3 shadow-lg"
+                >
+                    <div className="text-center">
+                        <p className="text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 
+                                  bg-clip-text text-transparent">{month}</p>
+                        <p className="text-2xl font-bold leading-tight text-gray-800">{day}</p>
+                        <p className="text-xs text-gray-600">{year}</p>
+                    </div>
+                </motion.div>
+
+                {/* Category Badge */}
+                <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="absolute top-4 right-4"
+                >
+                    <button
+                        onClick={(event) => handleCategoryClick(event, blog.category)}
+                        className="px-4 py-2 text-sm font-medium bg-white/90 backdrop-blur-sm 
+                                 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors
+                                 shadow-lg"
+                    >
+                        {blog.category}
+                    </button>
+                </motion.div>
             </div>
 
-            {/* Blog Content Section */}
-            <div className="p-5">
-                {/* Blog Title */}
-                <h1 className="text-2xl font-bold mb-3 text-gray-800 hover:text-blue-600 transition-colors">
+            {/* Content Section */}
+            <div className="p-6 flex-1 flex flex-col">
+                {/* Title */}
+                <h2 className="text-xl font-bold text-gray-800 mb-3 line-clamp-2 
+                             group-hover:text-blue-600 transition-colors duration-300">
                     {blog.title}
-                </h1>
+                </h2>
 
-                {/* Category and Author */}
-                <p className="text-sm text-gray-500 mb-4 flex items-center space-x-2">
-                    <a
-                        onClick={(event) => handleCategoryClick(event, blog.category)}
-                        className="text-blue-600 hover:underline cursor-pointer"
-                    >
-                        <i className="fas fa-tag"></i> {blog.category}
-                    </a>
-                    <span>/</span>
-                    <a
-                        onClick={(event) => handleAuthorClick(event, blog.author)}
-                        className="text-blue-600 hover:underline cursor-pointer"
-                    >
-                        <i className="fas fa-user"></i> By {blog.author}
-                    </a>
-                </p>
-
-                {/* Blog Content Preview */}
-                <p className="text-gray-600">
+                {/* Excerpt */}
+                <p className="text-gray-600 text-sm mb-6 flex-1 line-clamp-4 sm:line-clamp-3 md:line-clamp-4">
                     {blog.excerpt}
                 </p>
 
-                {/* Read More Link */}
-                <a
-                    onClick={() => {
-                        console.log("Read More clicked, navigating to blog slug:", blog.slug);
-                        navigate(`/blog/${blog.slug}`);
-                    }}
-                    className="inline-block mt-4 text-blue-600 font-semibold hover:underline cursor-pointer"
-                >
-                    Read More...
-                </a>
+                {/* Author and Read More Section */}
+                <div className="flex items-center justify-between mt-auto border-t border-gray-200 pt-4">
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        onClick={(event) => handleAuthorClick(event, blog.author)}
+                        className="flex items-center gap-3"
+                    >
+                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-100">
+                            {blog.author_image ? (
+                                <img
+                                    src={BASE_URL.slice(0, BASE_URL.lastIndexOf('api')) + blog.author_image}
+                                    alt={blog.author}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 
+                                              flex items-center justify-center">
+                                    <span className="text-white text-lg font-bold">
+                                        {blog.author.charAt(0)}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                        <span className="text-sm font-medium text-gray-700 hover:text-blue-600 
+                                     transition-colors">
+                            {blog.author}
+                        </span>
+                    </motion.button>
+
+                    <motion.div
+                        whileHover={{ x: 5 }}
+                        className="flex items-center gap-2 text-blue-600 font-medium text-sm"
+                    >
+                        Read More
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </motion.div>
+                </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

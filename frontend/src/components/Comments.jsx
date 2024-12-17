@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import apiClient from './ApiClient';
+import { motion } from 'framer-motion';
 
 const Comments = () => {
     const { slug } = useParams();
@@ -18,14 +19,12 @@ const Comments = () => {
     const fetchData = async () => {
         try {
             if (slug) {
-                // Fetch post details which includes comments
                 const response = await apiClient.get(`/posts/${slug}/`);
                 if (response.status === 200) {
                     setPost(response.data);
                     setComments(response.data.comments || []);
                 }
             } else {
-                // Fetch all comments
                 const response = await apiClient.get('/comments/');
                 if (response.status === 200) {
                     setComments(response.data);
@@ -59,75 +58,110 @@ const Comments = () => {
     const filteredComments = comments
         .filter(comment =>
             comment.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            comment.name.toLowerCase().includes(searchTerm.toLowerCase())
+            comment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            comment.email.toLowerCase().includes(searchTerm.toLowerCase())
         )
         .sort((a, b) => {
             if (sortBy === 'newest') {
                 return new Date(b.created_at) - new Date(a.created_at);
-            } else if (sortBy === 'oldest') {
+            } else {
                 return new Date(a.created_at) - new Date(b.created_at);
             }
-            return 0;
         });
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Hero Section */}
-            <div className="w-full relative text-white h-48 overflow-hidden shadow-lg">
-                <img
-                    src="/img/heroImage.jpeg"
-                    className="absolute w-full h-full object-cover opacity-80"
-                    alt="Hero Image"
-                />
-                <div className="absolute w-full h-full bg-gradient-to-t from-black to-transparent flex items-center flex-col justify-center gap-3">
-                    <h1 className="text-4xl font-bold text-center drop-shadow-md">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            {/* Enhanced Hero Section */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="relative h-[40vh] overflow-hidden"
+            >
+                <div className="absolute inset-0">
+                    <motion.div
+                        initial={{ scale: 1.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 2, ease: "easeOut" }}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/95 via-purple-900/95 to-black/95"></div>
+                        <img
+                            src="/img/heroImage.jpeg"
+                            className="w-full h-full object-cover"
+                            alt="Comments Background"
+                        />
+                    </motion.div>
+                </div>
+
+                <div className="relative h-full flex flex-col items-center justify-center text-center z-10 space-y-4 px-4">
+                    <motion.h1
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-4xl md:text-6xl font-bold text-white"
+                    >
                         {slug ? `Comments on "${post?.title}"` : 'Community Discussions'}
-                    </h1>
-                    <p className="text-center text-gray-100 max-w-2xl mx-auto">
-                        {slug ?? 'Explore what our community is saying across all your posts'
-                        }
-                    </p>
-                    <nav aria-label="breadcrumb">
-                        <ol className="flex w-full flex-wrap items-center rounded-md bg-slate-50 px-4 py-2">
-                            <li className="flex items-center text-sm text-slate-500">
-                                <Link to="/">Home</Link>
-                                <span className="mx-2 text-slate-800">/</span>
+                    </motion.h1>
+                    <motion.nav
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="mt-4"
+                    >
+                        <ol className="flex items-center rounded-md bg-white/10 backdrop-blur-md px-4 py-2">
+                            <li className="flex items-center text-sm text-gray-300">
+                                <Link to="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
+                                <span className="mx-2 text-gray-400">/</span>
                             </li>
                             {slug && (
                                 <>
-                                    <li className="flex items-center text-sm text-slate-500">
-                                        <Link to="/comments">Comments</Link>
-                                        <span className="mx-2 text-slate-800">/</span>
+                                    <li className="flex items-center text-sm text-gray-300">
+                                        <Link to="/comments" className="hover:text-white transition-colors">Comments</Link>
+                                        <span className="mx-2 text-gray-400">/</span>
                                     </li>
-                                    <li className="text-sm text-blue-500">{post?.title}</li>
+                                    <li className="text-sm text-blue-400">{post?.title}</li>
                                 </>
                             )}
-                            {!slug && <li className="text-sm text-blue-500">Comments</li>}
+                            {!slug && <li className="text-sm text-blue-400">Comments</li>}
                         </ol>
-                    </nav>
+                    </motion.nav>
                 </div>
-            </div>
+            </motion.div>
 
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-4 py-12">
                 {/* Controls Section */}
-                <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                        <div className="flex-1 w-full md:w-auto">
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search comments..."
-                                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                                <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="bg-white rounded-2xl shadow-xl p-6 backdrop-blur-lg bg-opacity-80 mb-8 max-w-4xl mx-auto"
+                >
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-blue-50 p-3 rounded-xl">
+                                <i className="fas fa-comments text-blue-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900">Total Comments</h3>
+                                <p className="text-gray-500">
+                                    Showing {filteredComments.length} of {comments.length} comments
+                                </p>
                             </div>
                         </div>
+                    </div>
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div className="relative w-full md:w-96">
+                            <i className="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input
+                                type="text"
+                                placeholder="Search comments..."
+                                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 transition-all duration-200 outline-none"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
                         <select
-                            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            className="w-full md:w-48 px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 transition-all duration-200 outline-none"
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
                         >
@@ -135,27 +169,46 @@ const Comments = () => {
                             <option value="oldest">Oldest First</option>
                         </select>
                     </div>
-                </div>
+                </motion.div>
 
+                {/* Comments Section */}
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
-                        <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex flex-col items-center gap-4"
+                        >
+                            <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                            <p className="text-gray-500 font-medium">Loading comments...</p>
+                        </motion.div>
                     </div>
                 ) : (
-                    <div className="space-y-6">
+                    <div className="max-w-4xl mx-auto space-y-6">
                         {filteredComments.length === 0 ? (
-                            <div className="text-center py-20 bg-white rounded-lg shadow-sm">
-                                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                <h3 className="mt-2 text-sm font-medium text-gray-900">No comments found</h3>
-                                <p className="mt-1 text-sm text-gray-500">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5 }}
+                                className="text-center py-20 bg-white rounded-2xl shadow-xl"
+                            >
+                                <div className="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i className="fas fa-comments text-blue-500 text-3xl"></i>
+                                </div>
+                                <h3 className="text-xl font-medium text-gray-900 mb-2">No comments found</h3>
+                                <p className="text-gray-500 max-w-md mx-auto">
                                     {searchTerm ? 'Try adjusting your search terms.' : 'Be the first to start the conversation!'}
                                 </p>
-                            </div>
+                            </motion.div>
                         ) : (
                             filteredComments.map((comment, index) => (
-                                <div key={index} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                                    key={index}
+                                    className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300"
+                                >
                                     <div className="p-6">
                                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                             <div className="flex items-center gap-4">
@@ -166,7 +219,7 @@ const Comments = () => {
                                                             : 'https://www.gravatar.com/avatar?d=mp'
                                                     }
                                                     alt={comment.name}
-                                                    className="w-12 h-12 rounded-full object-cover cursor-pointer"
+                                                    className="w-12 h-12 rounded-xl object-cover cursor-pointer"
                                                     onClick={() => comment.username !== 'not found' && navigate(`/author/${comment.username}`)}
                                                 />
                                                 <div>
@@ -189,9 +242,7 @@ const Comments = () => {
                                                         className="text-blue-500 hover:text-blue-700 font-medium text-sm flex items-center gap-1"
                                                     >
                                                         View Post
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                                                        </svg>
+                                                        <i className="fas fa-arrow-right text-xs"></i>
                                                     </Link>
                                                 )}
                                             </div>
@@ -200,7 +251,7 @@ const Comments = () => {
                                             <p className="text-gray-600 leading-relaxed">{comment.content}</p>
                                         </div>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))
                         )}
                     </div>
