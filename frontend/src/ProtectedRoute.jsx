@@ -10,17 +10,26 @@ const ProtectedRoute = () => {
         const validateToken = async () => {
             try {
                 const token = localStorage.getItem('accessToken');
+                const username = localStorage.getItem('username');
                 if (!token) {
                     throw new Error('No access token found');
                 }
-                // Make a request to validate the token
-                await apiClient.post('/token/verify/', { token });
+                
+                // Instead of directly validating the token, make any authenticated request
+                // This will trigger the refresh token flow if needed
+                await apiClient.get(`/users/${username}/`); // or any other authenticated endpoint
                 setIsAuthenticated(true);
             } catch (error) {
-                console.error('Token validation failed:', error);
-                setIsAuthenticated(false);
-                // Clear localStorage if token is invalid
-                localStorage.clear();
+                // Only clear storage and set authenticated to false if refresh token also failed
+                if (!localStorage.getItem('refreshToken') || 
+                    (error.response && error.response.status === 401)) {
+                    console.error('Authentication failed:', error);
+                    setIsAuthenticated(false);
+                    localStorage.clear();
+                } else {
+                    // If there was a different error, we'll assume the user is still authenticated
+                    setIsAuthenticated(true);
+                }
             } finally {
                 setIsLoading(false);
             }

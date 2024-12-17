@@ -228,58 +228,80 @@ const Dashboard = () => {
                                 </div>
 
                                 <div className="divide-y divide-gray-100">
-                                    {dashboardData.recentPosts.map((post, index) => (
-                                        <motion.div
-                                            key={post.slug}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ duration: 0.3, delay: index * 0.1 }}
-                                            className="p-6 hover:bg-gray-50 transition-colors"
-                                        >
-                                            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                                                <div className="flex-1 min-w-0">
-                                                    <Link
-                                                        to={`/blog/${post.slug}`}
-                                                        className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-1"
-                                                    >
-                                                        {post.title}
-                                                    </Link>
-                                                    <p className="mt-1 text-gray-600 line-clamp-2">{post.excerpt}</p>
-                                                    <div className="mt-2 flex flex-wrap items-center gap-4">
-                                                        <span className="text-sm text-gray-500">
-                                                            <i className="fas fa-clock mr-1"></i>
-                                                            {formatDate(post.created_at)}
-                                                        </span>
+                                    {dashboardData.recentPosts.length > 0 ? (
+                                        dashboardData.recentPosts.map((post, index) => (
+                                            <motion.div
+                                                key={post.slug}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                                                className="p-6 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                                                    <div className="flex-1 min-w-0">
                                                         <Link
-                                                            to={`/comments/${post.slug}`}
-                                                            className="text-sm text-blue-500 hover:text-blue-700"
+                                                            to={`/blog/${post.slug}`}
+                                                            className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-1"
                                                         >
-                                                            <i className="fas fa-comment mr-1"></i>
-                                                            {post.comments_count} Comments
+                                                            {post.title}
                                                         </Link>
+                                                        <p className="mt-1 text-gray-600 line-clamp-2">{post.excerpt}</p>
+                                                        <div className="mt-2 flex flex-wrap items-center gap-4">
+                                                            <span className="text-sm text-gray-500">
+                                                                <i className="fas fa-clock mr-1"></i>
+                                                                {formatDate(post.created_at)}
+                                                            </span>
+                                                            <Link
+                                                                to={`/comments/${post.slug}`}
+                                                                className="text-sm text-blue-500 hover:text-blue-700"
+                                                            >
+                                                                <i className="fas fa-comment mr-1"></i>
+                                                                {post.comments_count} Comments
+                                                            </Link>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 sm:self-start">
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.1 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            onClick={() => handleEdit(post.slug)}
+                                                            className="p-2 text-blue-500 hover:bg-blue-50 rounded-xl transition-colors"
+                                                        >
+                                                            <i className="fas fa-edit"></i>
+                                                        </motion.button>
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.1 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            onClick={() => handleDelete(post.slug)}
+                                                            className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                                                        >
+                                                            <i className="fas fa-trash"></i>
+                                                        </motion.button>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-2 sm:self-start">
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.1 }}
-                                                        whileTap={{ scale: 0.9 }}
-                                                        onClick={() => handleEdit(post.slug)}
-                                                        className="p-2 text-blue-500 hover:bg-blue-50 rounded-xl transition-colors"
-                                                    >
-                                                        <i className="fas fa-edit"></i>
-                                                    </motion.button>
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.1 }}
-                                                        whileTap={{ scale: 0.9 }}
-                                                        onClick={() => handleDelete(post.slug)}
-                                                        className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
-                                                    >
-                                                        <i className="fas fa-trash"></i>
-                                                    </motion.button>
-                                                </div>
+                                            </motion.div>
+                                        ))
+                                    ) : (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="p-12 text-center"
+                                        >
+                                            <div className="flex flex-col items-center gap-4">
+                                                <i className="fas fa-file-alt text-4xl text-gray-300"></i>
+                                                <p className="text-gray-500 font-medium">No posts yet</p>
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={() => navigate('/posts/new')}
+                                                    className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+                                                >
+                                                    <i className="fas fa-plus-circle"></i>
+                                                    <span>Create Your First Post</span>
+                                                </motion.button>
                                             </div>
                                         </motion.div>
-                                    ))}
+                                    )}
                                 </div>
                             </div>
                         </motion.div>
@@ -308,31 +330,45 @@ const Dashboard = () => {
                                 </div>
 
                                 <div className="divide-y divide-gray-100">
-                                    {dashboardData.recentComments.map((comment, index) => (
-                                        <motion.div
-                                            key={index}
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ duration: 0.3, delay: index * 0.1 }}
-                                            className="p-6 hover:bg-gray-50 transition-colors"
-                                        >
-                                            <div className="flex items-start gap-3">
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                                        <h4 className="font-semibold text-gray-900">{comment.name}</h4>
-                                                        <span className="text-sm text-gray-500">{formatDate(comment.created_at)}</span>
+                                    {dashboardData.recentComments.length > 0 ? (
+                                        dashboardData.recentComments.map((comment, index) => (
+                                            <motion.div
+                                                key={index}
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                                                className="p-6 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                                            <h4 className="font-semibold text-gray-900">{comment.name}</h4>
+                                                            <span className="text-sm text-gray-500">{formatDate(comment.created_at)}</span>
+                                                        </div>
+                                                        <Link
+                                                            to={`/blog/${comment.slug}`}
+                                                            className="text-sm text-blue-500 hover:text-blue-700 block mt-1"
+                                                        >
+                                                            on {comment.post}
+                                                        </Link>
+                                                        <p className="mt-2 text-gray-600 text-sm line-clamp-2">{comment.content}</p>
                                                     </div>
-                                                    <Link
-                                                        to={`/blog/${comment.slug}`}
-                                                        className="text-sm text-blue-500 hover:text-blue-700 block mt-1"
-                                                    >
-                                                        on {comment.post}
-                                                    </Link>
-                                                    <p className="mt-2 text-gray-600 text-sm line-clamp-2">{comment.content}</p>
                                                 </div>
+                                            </motion.div>
+                                        ))
+                                    ) : (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="p-12 text-center"
+                                        >
+                                            <div className="flex flex-col items-center gap-4">
+                                                <i className="fas fa-comments text-4xl text-gray-300"></i>
+                                                <p className="text-gray-500 font-medium">No comments yet</p>
+                                                <p className="text-sm text-gray-400">Comments will appear here once readers engage with your posts</p>
                                             </div>
                                         </motion.div>
-                                    ))}
+                                    )}
                                 </div>
                             </div>
                         </motion.div>

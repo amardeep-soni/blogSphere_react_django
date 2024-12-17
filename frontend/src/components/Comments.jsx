@@ -11,6 +11,7 @@ const Comments = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('newest');
     const navigate = useNavigate();
+    const [totalUserComments, setTotalUserComments] = useState(0);
 
     useEffect(() => {
         fetchData();
@@ -27,7 +28,12 @@ const Comments = () => {
             } else {
                 const response = await apiClient.get('/comments/');
                 if (response.status === 200) {
-                    setComments(response.data);
+                    if (Array.isArray(response.data)) {
+                        setComments(response.data);
+                    } else {
+                        setComments(response.data.comments);
+                        setTotalUserComments(response.data.total_user_comments);
+                    }
                 }
             }
         } catch (error) {
@@ -100,7 +106,12 @@ const Comments = () => {
                         transition={{ delay: 0.2 }}
                         className="text-4xl md:text-6xl font-bold text-white"
                     >
-                        {slug ? `Comments on "${post?.title}"` : 'Community Discussions'}
+                        {slug
+                            ? `Comments on "${post?.title}"`
+                            : totalUserComments > 0
+                                ? 'Comments on Your Posts'
+                                : 'All Comments'
+                        }
                     </motion.h1>
                     <motion.nav
                         initial={{ y: 20, opacity: 0 }}
@@ -238,7 +249,7 @@ const Comments = () => {
                                                 </time>
                                                 {!slug && (
                                                     <Link
-                                                        to={`/blog/${comment.slug}`}
+                                                        to={`/blog/${comment.post_slug}`}
                                                         className="text-blue-500 hover:text-blue-700 font-medium text-sm flex items-center gap-1"
                                                     >
                                                         View Post
