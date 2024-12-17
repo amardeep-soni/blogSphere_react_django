@@ -1,4 +1,4 @@
-import './App.css'
+import './App.css';
 import BlogDetail from './components/BlogDetail';
 import Category from './components/Category';
 import MainLayout from './components/MainLayout';
@@ -16,13 +16,12 @@ import Blog from './components/Blog';
 import Home from './components/Home';
 import About from './components/About';
 import ProtectedRoute from './ProtectedRoute';
-
+import ScrollToTop from './ScrollToTop'; // Import the ScrollToTop component
 
 function App() {
-
   return (
-    // route
     <BrowserRouter>
+      <ScrollToTop /> {/* Reset scroll position on route change */}
       <Routes>
         <Route path="/" element={<MainLayout />}>
           {/* Public Routes */}
@@ -49,7 +48,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
