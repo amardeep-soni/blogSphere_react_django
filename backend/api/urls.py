@@ -15,13 +15,12 @@ from .views import (
     UserPostsView,
     PostSearchView,
 )
-from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("login/", LoginTokenView.as_view(), name="login"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     # users URLs
     path("users/", UserListView.as_view(), name="user-list"),
     path("users/<str:username>/", UserDetailView.as_view(), name="user-detail"),

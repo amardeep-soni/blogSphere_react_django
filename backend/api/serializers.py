@@ -94,9 +94,10 @@ class LoginTokenSerializer(TokenObtainPairSerializer):
 
 # Comment Serializer
 class CommentSerializer(serializers.ModelSerializer):
-    slug = serializers.SerializerMethodField()  # Accept slug for creating a comment
-    user_image = serializers.SerializerMethodField()  # Fetch user image dynamically
-    username = serializers.SerializerMethodField()  # Fetch user name dynamically
+    slug = serializers.CharField(write_only=True)
+    post_slug = serializers.CharField(source='post.slug', read_only=True)
+    user_image = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -104,6 +105,7 @@ class CommentSerializer(serializers.ModelSerializer):
             "id",
             "post",
             "slug",
+            "post_slug",
             "name",
             "email",
             "content",

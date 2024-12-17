@@ -152,33 +152,36 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
 class CommentListCreateView(generics.ListCreateAPIView):
     queryset = Comment.objects.select_related("post")
     serializer_class = CommentSerializer
-    permission_classes = [AllowAny]  # Allow anyone to submit comments
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
-        # Fetch comments ordered by latest created_at first
-        return Comment.objects.all().order_by("-created_at")
+        queryset = Comment.objects.all().order_by("-created_at")
+        
+        # If user is authenticated, annotate with is_author_post
+        if self.request.user.is_authenticated:
+            user_posts = Post.objects.filter(author=self.request.user)
+            return queryset.annotate(
+                is_author_post=models.Case(
+                    models.When(post__in=user_posts, then=True),
+                    default=False,
+                    output_field=models.BooleanField(),
+                )
+            )
+        return queryset
 
-    def perform_create(self, serializer):
-        # Extract slug from request data and associate the post
-        slug = self.request.data.get("slug")
-        if not slug:
-            raise ValidationError({"slug": "This field is required."})
-
-        try:
-            post = Post.objects.get(slug=slug)
-        except Post.DoesNotExist:
-            raise NotFound("Post with the given slug does not exist.")
-
-        # Save the comment
-        serializer.save(post=post)
-
-    def create(self, request, *args, **kwargs):
-        """
-        Override the create method to return the newly created comment,
-        including the user_image field.
-        """
-        response = super().create(request, *args, **kwargs)
-        return Response(response.data, status=status.HTTP_201_CREATED)
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        
+        # Add total_user_comments if user is authenticated
+        if request.user.is_authenticated:
+            user_posts = Post.objects.filter(author=request.user)
+            total_user_comments = Comment.objects.filter(post__in=user_posts).count()
+            response.data = {
+                'comments': response.data,
+                'total_user_comments': total_user_comments
+            }
+        
+        return response
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
