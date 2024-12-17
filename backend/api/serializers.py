@@ -157,6 +157,7 @@ class CommentSerializer(serializers.ModelSerializer):
 # PostSerializer
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()
+    author_image = serializers.SerializerMethodField()
     category = serializers.CharField(source="category.name", read_only=True)
     comments = serializers.SerializerMethodField()
     category_id = serializers.PrimaryKeyRelatedField(
@@ -176,6 +177,7 @@ class PostSerializer(serializers.ModelSerializer):
             "slug",
             "image",
             "author",
+            "author_image",
             "category",
             "category_id",
             "comments",
@@ -183,10 +185,21 @@ class PostSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make image optional for updates
+        if self.instance is not None:  # If this is an update
+            self.fields['image'].required = False
+
     def get_comments(self, obj):
         # Sort comments by latest created_at first
         comments = obj.comments.all().order_by("-created_at")
         return CommentSerializer(comments, many=True).data
+
+    def get_author_image(self, obj):
+        if obj.author.profile and obj.author.profile.photo:
+            return obj.author.profile.photo.url
+        return None  # or return a default image URL
 
 
 # Category Serializer
