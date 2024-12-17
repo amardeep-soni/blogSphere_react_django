@@ -15,14 +15,17 @@ from .views import (
     UserPostsView,
     PostSearchView,
 )
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("login/", LoginTokenView.as_view(), name="login"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
+    # users URLs
     path("users/", UserListView.as_view(), name="user-list"),
     path("users/<str:username>/", UserDetailView.as_view(), name="user-detail"),
+    path("user/posts/", UserPostsView.as_view(), name="user-posts"),
     # Post URLs
     path("posts/", PostListCreateView.as_view(), name="post-list-create"),
     path("posts/recent/", RecentPostListView.as_view(), name="recent-posts"),
@@ -34,6 +37,6 @@ urlpatterns = [
     # Comment URLs
     path("comments/", CommentListCreateView.as_view(), name="comment-list-create"),
     path("comments/<int:pk>/", CommentDetailView.as_view(), name="comment-detail"),
+    # Dashboard URLs
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
-    path("user/posts/", UserPostsView.as_view(), name="user-posts"),
 ]

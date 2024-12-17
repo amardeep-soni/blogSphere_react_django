@@ -15,6 +15,7 @@ import Contact from './components/Contact';
 import Blog from './components/Blog';
 import Home from './components/Home';
 import About from './components/About';
+import ProtectedRoute from './ProtectedRoute';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout />}>
+          {/* Public Routes */}
           <Route index element={<Home />} />
           <Route path='register' element={<Register />} />
           <Route path='login' element={<Login />} />
@@ -32,18 +34,18 @@ function App() {
           <Route path="blog/:slug" element={<BlogDetail />} />
           <Route path="category/:name" element={<Category />} />
           <Route path="author/:username" element={<Profile />} />
-
-          {/* Dashboard */}
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="posts" element={<AllPosts />} />
-          <Route path="posts/new" element={<PostForm mode="create" />} />
-          <Route path="posts/edit/:slug" element={<PostForm mode="edit" />} />
-          <Route path="comments" element={<Comments />} />
-          <Route path="comments/:slug" element={<Comments />} />
+          <Route path="contact" element={<Contact />} />
           <Route path="search" element={<SearchResults />} />
 
-
-          <Route path="contact" element={<Contact />} />
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="posts" element={<AllPosts />} />
+            <Route path="posts/new" element={<PostForm mode="create" />} />
+            <Route path="posts/edit/:slug" element={<PostForm mode="edit" />} />
+            <Route path="comments" element={<Comments />} />
+            <Route path="comments/:slug" element={<Comments />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
