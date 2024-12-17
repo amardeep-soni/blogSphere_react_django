@@ -42,53 +42,6 @@ const Profile = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
             {/* Hero Section */}
-            {/* <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="relative h-[50vh] overflow-hidden"
-            >
-                <div className="absolute inset-0">
-                    <motion.div
-                        initial={{ scale: 1.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 2, ease: "easeOut" }}
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/95 via-purple-900/95 to-black/95"></div>
-                        <img
-                            src="/img/heroImage.jpeg"
-                            className="w-full h-full object-cover"
-                            alt="Hero Background"
-                        />
-                    </motion.div>
-                </div>
-
-                <div className="relative h-full flex flex-col items-center justify-center text-center z-10 space-y-4 px-4">
-                    <motion.h1
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-4xl md:text-6xl font-bold text-white"
-                    >
-                        {loading ? 'Loading...' : `${author.first_name} ${author.last_name}`}
-                    </motion.h1>
-                    <motion.nav
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                        className="mt-4"
-                    >
-                        <ol className="flex items-center rounded-md bg-white/10 backdrop-blur-md px-4 py-2">
-                            <li className="flex items-center text-sm text-gray-300">
-                                <a href="/" className="hover:text-white transition-colors">Home</a>
-                                <span className="mx-2 text-gray-400">/</span>
-                            </li>
-                            <li className="text-sm text-blue-400">@{username}</li>
-                        </ol>
-                    </motion.nav>
-                </div>
-            </motion.div> */}
-
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -201,14 +154,14 @@ const Profile = () => {
                                             whileHover={{ scale: 1.05 }}
                                             className="bg-blue-50 px-6 py-3 rounded-xl"
                                         >
-                                            <p className="text-3xl font-bold text-blue-600">{author.posts?.length || 0}</p>
+                                            <p className="text-3xl font-bold text-blue-600 text-center">{author.posts?.length || 0}</p>
                                             <p className="text-sm text-gray-600">Posts</p>
                                         </motion.div>
                                         <motion.div
                                             whileHover={{ scale: 1.05 }}
                                             className="bg-purple-50 px-6 py-3 rounded-xl"
                                         >
-                                            <p className="text-3xl font-bold text-purple-600">
+                                            <p className="text-3xl font-bold text-purple-600 text-center">
                                                 {author.posts?.reduce((total, post) => total + (post.comments?.length || 0), 0)}
                                             </p>
                                             <p className="text-sm text-gray-600">Comments</p>
@@ -233,16 +186,25 @@ const Profile = () => {
 
                             {author.posts && author.posts.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {author.posts.map((blog, index) => (
-                                        <motion.div
-                                            key={blog.slug}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3, delay: index * 0.1 }}
-                                        >
-                                            <BlogCard blog={blog} />
-                                        </motion.div>
-                                    ))}
+                                    {author.posts.map((blog, index) => {
+                                        const blogWithFullUrl = {
+                                            ...blog,
+                                            image: blog.image?.startsWith('http')
+                                                ? blog.image
+                                                : `${BASE_URL.slice(0, BASE_URL.lastIndexOf('api'))}${blog.image}`
+                                        };
+
+                                        return (
+                                            <motion.div
+                                                key={blog.slug}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                                            >
+                                                <BlogCard blog={blogWithFullUrl} />
+                                            </motion.div>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <motion.div

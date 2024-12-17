@@ -76,10 +76,27 @@ export default function Login() {
             localStorage.setItem('refreshToken', data.refresh);
             localStorage.setItem('username', data.username);
 
+            // Fetch user profile data immediately after login
+            try {
+                const profileResponse = await fetch(`${BASE_URL}/users/${data.username}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${data.access}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const profileData = await profileResponse.json();
+                
+                // Dispatch custom event with profile data
+                window.dispatchEvent(new CustomEvent('profileUpdate', {
+                    detail: profileData
+                }));
+            } catch (err) {
+                console.error('Error fetching profile:', err);
+            }
+
             // Redirect to another page after successful login
             console.log('Redirecting to home page'); // Debug log
-            // window.location.href = '/';
-            navigate('/');
+            navigate('/dashboard');
 
         } catch (error) {
             console.error('Fetch error:', error); // Debug log

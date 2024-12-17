@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import apiClient from "./ApiClient";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -52,10 +53,18 @@ const Header = () => {
   }, [username]);
 
   const logout = () => {
+    // Clear localStorage
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("username");
-    window.location.href = '/';
+
+    // Dispatch event to clear profile
+    window.dispatchEvent(new CustomEvent('profileUpdate', {
+      detail: null
+    }));
+
+    toast.success('Logged out successfully!');
+    navigate('/blog');
   };
 
   const isActive = (path) => {
