@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
 import BlogCard from "./BlogCard";
+import { formatCategoryForDisplay } from '../utils/formatters';
 
 const Blog = () => {
   const navigate = useNavigate();
@@ -77,6 +78,10 @@ const Blog = () => {
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
+  };
+
+  const formatCategoryName = (category) => {
+    return category.replace(/-/g, ' ');
   };
 
   useEffect(() => {
@@ -237,7 +242,7 @@ const Blog = () => {
                       onClick={() => navigate(`/category/${category}`)}
                       className="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors duration-200"
                     >
-                      {category}
+                      {formatCategoryForDisplay(category)}
                     </motion.button>
                   ))}
                 </div>

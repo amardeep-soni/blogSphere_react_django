@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import BlogCard from './BlogCard';
 import { motion } from 'framer-motion';
+import { formatCategoryForDisplay } from '../utils/formatters';
 
 const SearchResults = () => {
     const [searchParams] = useSearchParams();
@@ -260,7 +261,7 @@ const SearchResults = () => {
                                             onClick={() => navigate(`/category/${category}`)}
                                             className="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors duration-200"
                                         >
-                                            {category}
+                                            {formatCategoryForDisplay(category)}
                                         </motion.button>
                                     ))}
                                 </div>

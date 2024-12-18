@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import BlogCard from './BlogCard';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { formatCategoryForDisplay } from '../utils/formatters';
 
 const Category = () => {
     const { name } = useParams();
@@ -34,6 +35,8 @@ const Category = () => {
         getCategory();
     }, [name]);
 
+    const displayName = formatCategoryForDisplay(name);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
             {/* Enhanced Hero Section */}
@@ -65,7 +68,7 @@ const Category = () => {
                         transition={{ delay: 0.2 }}
                         className="text-4xl md:text-6xl font-bold text-white capitalize"
                     >
-                        {name}
+                        {displayName}
                     </motion.h1>
                     <motion.nav
                         initial={{ y: 20, opacity: 0 }}
@@ -78,7 +81,7 @@ const Category = () => {
                                 <a href="/blog" className="hover:text-white transition-colors">Blogs</a>
                                 <span className="mx-2 text-gray-400">/</span>
                             </li>
-                            <li className="text-sm text-blue-400 capitalize">{name}</li>
+                            <li className="text-sm text-blue-400 capitalize">{displayName}</li>
                         </ol>
                     </motion.nav>
                 </div>
@@ -111,10 +114,10 @@ const Category = () => {
                             className="bg-white rounded-2xl shadow-xl p-8 backdrop-blur-lg bg-opacity-80 mb-12"
                         >
                             <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 capitalize">
-                                About {name}
+                                About {displayName}
                             </h2>
                             <p className="text-lg text-gray-600 leading-relaxed">
-                                {category.description || `Explore our collection of posts in the ${name} category.`}
+                                {category.description || `Explore our collection of posts in the ${displayName} category.`}
                             </p>
                         </motion.div>
 
@@ -126,7 +129,7 @@ const Category = () => {
                         >
                             <div className="flex items-center justify-between mb-8">
                                 <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                    Post in {name}
+                                    Posts in {displayName}
                                 </h3>
                                 <div className="h-1 flex-1 mx-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full" />
                             </div>

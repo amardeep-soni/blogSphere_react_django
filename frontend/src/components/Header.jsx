@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import apiClient from "./ApiClient";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import { formatCategoryForDisplay } from '../utils/formatters';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -214,7 +215,7 @@ const Header = () => {
                             ? 'bg-blue-100 text-blue-600'
                             : 'text-gray-700 hover:bg-blue-100 hover:text-blue-600'}`}
                       >
-                        {category}
+                        {formatCategoryForDisplay(category)}
                       </Link>
                     </li>
                   ))}
@@ -264,7 +265,7 @@ const Header = () => {
                           to={`/category/${category}`}
                           className="block px-8 py-2 text-gray-600 hover:text-blue-600"
                         >
-                          {category}
+                          {formatCategoryForDisplay(category)}
                         </Link>
                       </li>
                     ))}

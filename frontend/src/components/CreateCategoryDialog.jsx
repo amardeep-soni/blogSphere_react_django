@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import apiClient from './ApiClient';
+import { formatCategoryForDB } from '../utils/formatters';
 
 const CreateCategoryDialog = ({ isOpen, onClose, onCategoryCreated }) => {
     const [formData, setFormData] = useState({
@@ -10,7 +11,12 @@ const CreateCategoryDialog = ({ isOpen, onClose, onCategoryCreated }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await apiClient.post('/category/', formData);
+            const processedFormData = {
+                ...formData,
+                name: formatCategoryForDB(formData.name)
+            };
+
+            const response = await apiClient.post('/category/', processedFormData);
             if (response.status === 201) {
                 onCategoryCreated();
                 setFormData({ name: '', description: '' });

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { formatCategoryForDisplay } from '../utils/formatters';
 
 const BlogCard = ({ blog }) => {
     const navigate = useNavigate();
@@ -19,6 +20,10 @@ const BlogCard = ({ blog }) => {
     const day = blogDate.getDate();
     const month = blogDate.toLocaleString('default', { month: 'short' });
     const year = blogDate.getFullYear();
+
+    const formatCategoryName = (category) => {
+        return category.replace(/-/g, ' ');
+    };
 
     return (
         <motion.div
@@ -64,7 +69,7 @@ const BlogCard = ({ blog }) => {
                                  text-blue-600 rounded-xl hover:bg-blue-50 transition-colors
                                  shadow-lg"
                     >
-                        {blog.category}
+                        {formatCategoryForDisplay(blog.category)}
                     </button>
                 </motion.div>
             </div>
