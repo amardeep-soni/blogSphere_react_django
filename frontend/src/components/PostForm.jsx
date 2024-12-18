@@ -8,6 +8,7 @@ import { useDropzone } from 'react-dropzone';
 import apiClient from './ApiClient';
 import CreateCategoryDialog from './CreateCategoryDialog';
 import { motion } from 'framer-motion';
+import { formatCategoryForDisplay } from '../utils/formatters';
 
 const PostForm = ({ mode = 'create' }) => {
     const navigate = useNavigate();
@@ -21,9 +22,9 @@ const PostForm = ({ mode = 'create' }) => {
         category_id: '',
         image: null
     });
-    
+
     console.log(location);
-    
+
     const [categories, setCategories] = useState([]);
     const [showCategoryDialog, setShowCategoryDialog] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
@@ -94,16 +95,14 @@ const PostForm = ({ mode = 'create' }) => {
             const response = await apiClient.get(`/posts/${slug}/`);
             const post = response.data;
 
-            // Pre-fill the form data
             setFormData({
                 title: post.title,
                 content: post.content,
                 excerpt: post.excerpt,
-                category_id: '', // We'll set this after finding the category
+                category_id: '',
                 image: null
             });
 
-            // Set the image preview if there's an existing image
             if (post.image) {
                 setImagePreview(post.image);
             }
@@ -114,7 +113,7 @@ const PostForm = ({ mode = 'create' }) => {
                 if (selectedCategory) {
                     const categoryOption = {
                         value: selectedCategory.id,
-                        label: selectedCategory.name
+                        label: formatCategoryForDisplay(selectedCategory.name)
                     };
                     setSelectedCategory(categoryOption);
                     setFormData(prev => ({
@@ -132,12 +131,16 @@ const PostForm = ({ mode = 'create' }) => {
     // Convert categories to react-select format
     const categoryOptions = categories.map(category => ({
         value: category.id,
-        label: category.name
+        label: formatCategoryForDisplay(category.name),
+        originalName: category.name
     }));
 
     const handleCategoryChange = (selectedOption) => {
         setSelectedCategory(selectedOption);
-        setFormData({ ...formData, category_id: selectedOption ? selectedOption.value : '' });
+        setFormData(prev => ({
+            ...prev,
+            category_id: selectedOption ? selectedOption.value : ''
+        }));
     };
 
     // Custom styles for react-select
@@ -206,14 +209,14 @@ const PostForm = ({ mode = 'create' }) => {
             formDataToSend.append('excerpt', formData.excerpt.trim());
             formDataToSend.append('content', formData.content.trim());
             formDataToSend.append('category_id', formData.category_id);
-            
+
             let response;
             if (mode === 'edit') {
                 // For edit mode, only send image if there's a new one
                 if (formData.image) {
                     formDataToSend.append('image', formData.image);
                 }
-                
+
                 response = await apiClient.put(`/posts/${slug}/`, formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });

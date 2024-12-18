@@ -136,7 +136,7 @@ const BlogDetail = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className="relative h-[50vh] overflow-hidden"
+                className="relative h-[40vh] md:h-[50vh] overflow-hidden"
             >
                 <div className="absolute inset-0">
                     <motion.div
@@ -158,7 +158,7 @@ const BlogDetail = () => {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-4xl md:text-6xl font-bold text-white max-w-4xl"
+                        className="text-3xl sm:text-4xl md:text-6xl font-bold text-white max-w-4xl"
                     >
                         {loading ? 'Loading...' : blogDetail.title}
                     </motion.h1>
@@ -200,7 +200,7 @@ const BlogDetail = () => {
                     Error: {error}
                 </motion.div>
             ) : (
-                <div className="container mx-auto px-4 py-12">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -215,7 +215,7 @@ const BlogDetail = () => {
                             transition={{ duration: 0.5 }}
                         >
                             {/* Featured Image */}
-                            <div className="relative h-[300px] w-full">
+                            <div className="relative h-[200px] sm:h-[300px] w-full">
                                 <img
                                     src={blogDetail.image || "/img/heroImage.jpeg"}
                                     alt={blogDetail.title}
@@ -224,10 +224,10 @@ const BlogDetail = () => {
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                             </div>
 
-                            <div className="p-8">
+                            <div className="p-4 sm:p-6 md:p-8">
                                 {/* Title and Meta */}
                                 <div className="mb-6">
-                                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                                         {blogDetail.title}
                                     </h1>
                                     <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -246,7 +246,7 @@ const BlogDetail = () => {
                                 <motion.div
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="flex items-center gap-6 mb-6 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl cursor-pointer shadow-sm hover:shadow-md transition-shadow duration-300"
+                                    className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-6 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl cursor-pointer shadow-sm hover:shadow-md transition-shadow duration-300"
                                     onClick={() => navigate(`/author/${blogDetail.author}`)}
                                     whileHover={{ scale: 1.02, y: -2 }}
                                 >
@@ -332,7 +332,7 @@ const BlogDetail = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="bg-white rounded-2xl shadow-xl p-8 backdrop-blur-lg bg-opacity-80 mb-8"
+                            className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 backdrop-blur-lg bg-opacity-80 mb-8"
                         >
                             <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                 Comments ({blogDetail.comments ? blogDetail.comments.length : '0'})
@@ -395,7 +395,7 @@ const BlogDetail = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
-                            className="bg-white rounded-2xl shadow-xl p-8 backdrop-blur-lg bg-opacity-80"
+                            className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 backdrop-blur-lg bg-opacity-80"
                         >
                             <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                 Leave a Comment
@@ -410,10 +410,10 @@ const BlogDetail = () => {
                                         onChange={handleCommentInputChange}
                                         value={commentData.content}
                                     />
-                                    <div className="flex gap-4">
+                                    <div className="flex flex-col sm:flex-row gap-4">
                                         <input
                                             type="text"
-                                            className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 transition-all duration-200 outline-none"
+                                            className="w-full sm:w-1/2 px-4 py-3 rounded-xl border border-gray-200"
                                             name="name"
                                             placeholder="Your name"
                                             onChange={handleCommentInputChange}
@@ -421,7 +421,7 @@ const BlogDetail = () => {
                                         />
                                         <input
                                             type="email"
-                                            className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 transition-all duration-200 outline-none"
+                                            className="w-full sm:w-1/2 px-4 py-3 rounded-xl border border-gray-200"
                                             name="email"
                                             placeholder="Your email"
                                             onChange={handleCommentInputChange}
@@ -438,57 +438,6 @@ const BlogDetail = () => {
                                     Post Comment
                                 </motion.button>
                             </form>
-                        </motion.div>
-                    </motion.div>
-
-                    {/* Floating Share Button */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 100 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="fixed right-4 bottom-4 z-50"
-                    >
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            className="bg-white rounded-2xl shadow-xl p-4 backdrop-blur-lg bg-opacity-80"
-                        >
-                            <div className="flex flex-col gap-3">
-                                <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => handleShare('twitter')}
-                                    className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100"
-                                    title="Share on Twitter"
-                                >
-                                    <i className="fab fa-twitter"></i>
-                                </motion.button>
-                                <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => handleShare('facebook')}
-                                    className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100"
-                                    title="Share on Facebook"
-                                >
-                                    <i className="fab fa-facebook"></i>
-                                </motion.button>
-                                <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => handleShare('linkedin')}
-                                    className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100"
-                                    title="Share on LinkedIn"
-                                >
-                                    <i className="fab fa-linkedin"></i>
-                                </motion.button>
-                                <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => handleShare('copy')}
-                                    className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100"
-                                    title="Copy Link"
-                                >
-                                    <i className="fas fa-link"></i>
-                                </motion.button>
-                            </div>
                         </motion.div>
                     </motion.div>
                 </div>

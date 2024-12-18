@@ -87,7 +87,7 @@ const UserProfile = () => {
                 data.append('photo', formData.photo);
             }
 
-            const response = await apiClient.patch(`/users/${username}/`, data, {
+            const response = await apiClient.put(`/users/${username}/`, data, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 }

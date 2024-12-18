@@ -89,6 +89,17 @@ const Header = () => {
               <ul className="absolute right-0 mt-2 bg-white border border-gray-200 rounded shadow-md w-48 z-40" onMouseLeave={() => setIsProfileOpen(false)}>
                 <li>
                   <Link
+                    to={`/profile`}
+                    className={`block px-4 py-2 transition
+                      ${isActive(`/profile`)
+                        ? 'bg-blue-100 text-blue-600'
+                        : 'text-gray-700 hover:bg-blue-100 hover:text-blue-600'}`}
+                  >
+                    <i className="fas fa-user mr-2"></i> Profile
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     to={`/dashboard`}
                     className={`block px-4 py-2 transition
                       ${isActive('/dashboard')
@@ -176,7 +187,7 @@ const Header = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="w-48 cursor-pointer"
+            className="cursor-pointer"
           >
             <img
               src="/img/logo-landscape.png"
