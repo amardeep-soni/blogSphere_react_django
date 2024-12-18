@@ -1,9 +1,5 @@
 # BlogSphere: Frontend & Backend
 
-<p align="center">
-  <img src="public/logo.png" alt="BlogSphere Logo" width="200"/>
-</p>
-
 A modern blogging platform where creativity meets community. Built with React for the frontend and Django for the backend, BlogSphere empowers users to share stories, connect with readers, and engage with fellow writers.
 
 ## 📂 Project Structure
