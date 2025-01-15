@@ -3,6 +3,7 @@ import BlogCard from './BlogCard';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { formatCategoryForDisplay } from '../utils/formatters';
+import { toast } from 'react-toastify';
 
 const Category = () => {
     const { name } = useParams();
@@ -13,19 +14,22 @@ const Category = () => {
 
     const getCategory = async () => {
         try {
-            const response = await fetch(BASE_URL + `/category/${name}`, {
+            const response = await fetch(`${BASE_URL}/category/${name}`, {
                 method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json' }
             });
 
             if (response.ok) {
-                const res = await response.json();
-                setCategory(res);
+                const data = await response.json();
+                setCategory(data);
             } else {
-                console.error('Failed to fetch category data');
+                toast.error('Category not found');
+                navigate('/blog');
             }
         } catch (error) {
-            console.error('Error fetching category:', error.message);
+            console.error('Error fetching category:', error);
+            toast.error('Error loading category');
+            navigate('/blog');
         } finally {
             setLoading(false);
         }

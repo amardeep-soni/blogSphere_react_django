@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { formatCategoryForDisplay } from '../utils/formatters';
 
 const PostForm = ({ mode = 'create' }) => {
+    const BASE_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from || '/dashboard'; // Default to dashboard if no previous location
@@ -29,6 +30,7 @@ const PostForm = ({ mode = 'create' }) => {
     const [showCategoryDialog, setShowCategoryDialog] = useState(false);
     const [imagePreview, setImagePreview] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [newCategory, setNewCategory] = useState('');
 
     // Rich Text Editor modules configuration
     const modules = {
@@ -71,7 +73,7 @@ const PostForm = ({ mode = 'create' }) => {
     });
 
     useEffect(() => {
-        fetchCategories();
+        fetchUserCategories();
     }, []);
 
     useEffect(() => {
@@ -80,13 +82,27 @@ const PostForm = ({ mode = 'create' }) => {
         }
     }, [mode, slug, categories]);
 
-    const fetchCategories = async () => {
+    const fetchUserCategories = async () => {
         try {
-            const response = await apiClient.get('/category/');
-            setCategories(response.data);
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${BASE_URL}/category/?for_blog_form=true`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setCategories(data);
+            } else {
+                const error = await response.json();
+                toast.error(error.message || 'Failed to fetch your categories');
+            }
         } catch (error) {
             console.error('Error fetching categories:', error);
-            toast.error('Failed to fetch categories');
+            toast.error('Error loading categories');
         }
     };
 
@@ -234,6 +250,45 @@ const PostForm = ({ mode = 'create' }) => {
         } catch (error) {
             console.error(`Error ${mode === 'edit' ? 'updating' : 'creating'} post:`, error);
             toast.error(`Failed to ${mode === 'edit' ? 'update' : 'create'} post. Please try again.`);
+        }
+    };
+
+    const createCategory = async () => {
+        if (!newCategory.trim()) {
+            toast.warning('Please enter a category name');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${BASE_URL}/category/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: newCategory.trim() })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Add the category to the list and reset input
+                setCategories(prev => [...prev, data]);
+                setNewCategory('');
+                toast.success('Category added successfully');
+            } else if (response.status === 400 && data.message?.includes('already exists')) {
+                // If category exists, fetch updated category list
+                toast.info('Category already exists and has been added to your list');
+                setNewCategory('');
+                // Refetch user's categories to include the newly added one
+                await fetchUserCategories();
+            } else {
+                toast.error(data.message || 'Failed to create category');
+            }
+        } catch (error) {
+            console.error('Error creating category:', error);
+            toast.error('Error creating category');
         }
     };
 
@@ -420,7 +475,7 @@ const PostForm = ({ mode = 'create' }) => {
                     isOpen={showCategoryDialog}
                     onClose={() => setShowCategoryDialog(false)}
                     onCategoryCreated={() => {
-                        fetchCategories();
+                        fetchUserCategories();
                         setShowCategoryDialog(false);
                     }}
                 />

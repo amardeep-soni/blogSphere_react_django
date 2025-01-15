@@ -206,9 +206,17 @@ class PostSerializer(serializers.ModelSerializer):
 
 # Category Serializer
 class CategorySerializer(serializers.ModelSerializer):
+    is_creator = serializers.SerializerMethodField()
+    
     class Meta:
         model = Category
-        fields = ["id", "name", "description"]
+        fields = ['id', 'name', 'description', 'is_creator']
+
+    def get_is_creator(self, obj):
+        request = self.context.get('request')
+        if request and request.user:
+            return obj.created_by == request.user
+        return False
 
 
 # Category Detail Serializer

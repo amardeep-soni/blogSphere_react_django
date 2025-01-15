@@ -6,8 +6,5 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     include: ['@emailjs/browser']
-  },
-  build: {
-    chunkSizeWarningLimit: 2000, // size limit to 2000kb
-  },
+  }
 })

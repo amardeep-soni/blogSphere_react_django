@@ -58,6 +58,11 @@ class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='categories')
+    users = models.ManyToManyField(User, related_name='accessible_categories')
+
+    def __str__(self):
+        return self.name
 
 
 class Comment(models.Model):

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import apiClient from './ApiClient';
 import { formatCategoryForDB } from '../utils/formatters';
+import { toast } from 'react-toastify';
 
 const CreateCategoryDialog = ({ isOpen, onClose, onCategoryCreated }) => {
     const [formData, setFormData] = useState({
         name: '',
         description: ''
     });
+    const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,12 +19,23 @@ const CreateCategoryDialog = ({ isOpen, onClose, onCategoryCreated }) => {
             };
 
             const response = await apiClient.post('/category/', processedFormData);
-            if (response.status === 201) {
+            
+            if (response.status === 201 || response.status === 200) {
                 onCategoryCreated();
                 setFormData({ name: '', description: '' });
+                toast.success(response.data.message || 'Category created successfully');
+                onClose();
             }
         } catch (error) {
-            console.error('Error creating category:', error);
+            if (error.response?.data?.message?.includes('already exists')) {
+                setError('Category already exists and has been added to your list');
+                toast.info('Category already exists and has been added to your list');
+                onCategoryCreated();
+                onClose();
+            } else {
+                setError('Error creating category');
+                toast.error('Error creating category');
+            }
         }
     };
 

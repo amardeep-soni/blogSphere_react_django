@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { formatCategoryForDisplay } from '../utils/formatters';
 
-const Header = () => {
+export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const BASE_URL = import.meta.env.VITE_API_URL;
@@ -15,20 +15,31 @@ const Header = () => {
   const [profile, setProfile] = useState(null);
   const username = localStorage.getItem("username");
 
-  const getCategories = async () => {
-    const response = await fetch(BASE_URL + '/category/', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
+  const fetchPublicCategories = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/category/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-    if (response.ok) {
-      const res = await response.json();
-      const categoryNames = res.map(c => c.name);
-      setCategories(categoryNames);
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      } else {
+        console.error('Failed to fetch categories');
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
   useEffect(() => {
+    // Fetch categories when component mounts
+    fetchPublicCategories();
+
+    // Profile fetching logic (existing code)
     const fetchProfile = async () => {
       try {
         const response = await apiClient.get(`/users/${username}/`);
@@ -39,15 +50,13 @@ const Header = () => {
     };
 
     if (username) fetchProfile();
-    getCategories();
 
-    // Add event listener for profile updates
+    // Profile update event listener (existing code)
     const handleProfileUpdate = (event) => {
       setProfile(event.detail);
     };
     window.addEventListener('profileUpdate', handleProfileUpdate);
 
-    // Cleanup
     return () => {
       window.removeEventListener('profileUpdate', handleProfileUpdate);
     };
@@ -220,9 +229,9 @@ const Header = () => {
                   {categories.map((category, index) => (
                     <li key={index}>
                       <Link
-                        to={`/category/${category}`}
+                        to={`/category/${category.name}`}
                         className={`block px-4 py-2 transition
-                          ${isActive(`/category/${category}`)
+                          ${isActive(`/category/${category.name}`)
                             ? 'bg-blue-100 text-blue-600'
                             : 'text-gray-700 hover:bg-blue-100 hover:text-blue-600'}`}
                       >
@@ -289,7 +298,7 @@ const Header = () => {
       </div>
     </nav>
   );
-};
+}
 
 const MobileNavLink = ({ to, label, icon }) => (
   <li>
@@ -302,5 +311,3 @@ const MobileNavLink = ({ to, label, icon }) => (
     </Link>
   </li>
 );
-
-export default Header;

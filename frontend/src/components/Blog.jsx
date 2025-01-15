@@ -13,23 +13,25 @@ const Blog = () => {
   const [recentBlogs, setRecentBlogs] = useState([{ slug: '', title: '' }]);
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const getBlogs = async () => {
+  const fetchPosts = async () => {
     try {
-      console.log("Fetching blogs...");
       const response = await fetch(`${BASE_URL}/posts/`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
-      console.log("Response from blogs endpoint:", response);
 
       if (response.ok) {
-        const res = await response.json();
-        console.log("Blogs fetched successfully:", res);
-        setBlogs(res);
+        const data = await response.json();
+        setBlogs(data);
+        setLoading(false);
       }
     } catch (error) {
-      console.error("Error fetching blogs:", error);
+      console.error('Error fetching posts:', error);
+      setLoading(false);
     }
   };
 
@@ -53,23 +55,21 @@ const Blog = () => {
     }
   };
 
-  const getCategories = async () => {
+  const fetchCategories = async () => {
     try {
-      console.log("Fetching categories...");
       const response = await fetch(`${BASE_URL}/category/`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
-      console.log("Response from categories endpoint:", response);
 
       if (response.ok) {
-        const res = await response.json();
-        const categoryNames = res.map((c) => c.name);
-        console.log("Categories fetched successfully:", categoryNames);
-        setCategories(categoryNames);
+        const data = await response.json();
+        setCategories(data);
       }
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -86,9 +86,9 @@ const Blog = () => {
 
   useEffect(() => {
     console.log("Home component mounted, fetching data...");
-    getBlogs();
+    fetchPosts();
     getRecentBlogs();
-    getCategories();
+    fetchCategories();
   }, []);
 
   return (
@@ -239,7 +239,7 @@ const Blog = () => {
                       key={index}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => navigate(`/category/${category}`)}
+                      onClick={() => navigate(`/category/${category.name}`)}
                       className="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors duration-200"
                     >
                       {formatCategoryForDisplay(category)}

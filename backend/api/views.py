@@ -21,6 +21,8 @@ from rest_framework.permissions import AllowAny
 from django.http import JsonResponse
 from django.db import models
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import permission_classes
+from rest_framework import viewsets
 
 
 # Register View
@@ -100,17 +102,27 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
 
 # Post List and Create View
 class PostListCreateView(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-    # Allow anyone to view posts, but only authenticated users can create posts
-    permission_classes = [AllowAny]  # Public view for listing posts
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        return Post.objects.all()
 
     def perform_create(self, serializer):
-        # Only authenticated users can create posts
-        if not self.request.user.is_authenticated:
-            raise PermissionDenied("You must be logged in to create a post.")
-        serializer.save(author=self.request.user)
+        category = serializer.validated_data['category']
+        user = self.request.user
+        
+        # Check if user has access to the category
+        if not category.users.filter(id=user.id).exists():
+            raise PermissionDenied("You don't have access to this category")
+        
+        serializer.save(author=user)
 
 
 # Recent Blog Posts View
@@ -160,13 +172,63 @@ class IsPostAuthor(permissions.BasePermission):
 
 # Category List and Create View
 class CategoryListCreateView(generics.ListCreateAPIView):
-    queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
     def get_permissions(self):
-        if self.request.method == "GET":  # Allow unauthenticated GET requests
+        """
+        Override to allow public access for GET requests
+        """
+        if self.request.method == 'GET':
             return [AllowAny()]
-        return [IsAuthenticated()]  # Require authentication for POST
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        """
+        For POST form (creating blog): Return only user's categories
+        For public viewing: Return all categories
+        """
+        # Check if the request is for blog form
+        is_blog_form = self.request.query_params.get('for_blog_form') == 'true'
+        
+        if is_blog_form and self.request.user.is_authenticated:
+            # Return only categories the user has access to
+            return Category.objects.filter(users=self.request.user).distinct()
+        
+        # For public viewing, return all categories
+        return Category.objects.all().order_by('name')
+
+    def create(self, request, *args, **kwargs):
+        name = request.data.get('name', '').lower()
+        existing_category = Category.objects.filter(name__iexact=name).first()
+        
+        if existing_category:
+            # Add user to existing category's users if not already added
+            if request.user not in existing_category.users.all():
+                existing_category.users.add(request.user)
+                return Response({
+                    'id': existing_category.id,
+                    'name': existing_category.name,
+                    'message': 'Category already exists and has been added to your list'
+                }, status=status.HTTP_200_OK)
+            return Response({
+                'id': existing_category.id,
+                'name': existing_category.name,
+                'message': 'You already have access to this category'
+            }, status=status.HTTP_200_OK)
+        
+        # Create new category if it doesn't exist
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        category = serializer.save(
+            created_by=self.request.user,
+            name=serializer.validated_data['name'].lower()
+        )
+        category.users.add(self.request.user)
 
 
 # Category Detail, Update, and Delete View
@@ -300,3 +362,44 @@ class PostSearchView(generics.ListAPIView):
                 "-created_at"
             )
         return Post.objects.none()
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    def get_permissions(self):
+        """
+        Override to set different permissions for different actions:
+        - List (GET): Allow anyone to view categories
+        - Create/Update/Delete: Require authentication
+        """
+        if self.action == 'list':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        """
+        Override to:
+        - For POST/PUT/DELETE: Show only user's categories
+        - For GET: Show all categories
+        """
+        if self.request.method == 'GET':
+            return Category.objects.all()
+        return Category.objects.filter(user=self.request.user)
+
+
+class PostListView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [AllowAny]  # Allow public access for viewing posts
+    
+    def get_queryset(self):
+        queryset = Post.objects.all().order_by('-created_at')
+        category = self.request.query_params.get('category', None)
+        
+        if category:
+            queryset = queryset.filter(category__name=category)
+            
+        return queryset
