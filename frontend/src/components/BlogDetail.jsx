@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
+import DOMPurify from 'dompurify';
 
 const BlogDetail = () => {
+    
     const { slug } = useParams();
     const navigate = useNavigate();
     const [blogDetail, setBlogDetail] = useState({});
@@ -29,6 +31,10 @@ const BlogDetail = () => {
         }
     };
 
+    // Sanitize blog content
+    const sanitizedContent = DOMPurify.sanitize(blogDetail.content || '');
+
+    // Fetch blog details on component mount
     useEffect(() => {
         getBlogDetail();
     }, [slug]);
@@ -305,7 +311,7 @@ const BlogDetail = () => {
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 0.2 }}
                                         className="prose-headings:text-gray-800 prose-p:text-gray-600 prose-a:text-blue-600 prose-strong:text-gray-800"
-                                        dangerouslySetInnerHTML={{ __html: blogDetail.content }}
+                                        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
                                     />
                                 </div>
 
