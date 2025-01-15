@@ -245,24 +245,19 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 # Comment Views
 class CommentListCreateView(generics.ListCreateAPIView):
-    queryset = Comment.objects.select_related("post")
     serializer_class = CommentSerializer
     permission_classes = [AllowAny]
 
     def get_queryset(self):
         queryset = Comment.objects.all().order_by("-created_at")
         
-        # If user is authenticated, annotate with is_author_post
+        # If user is authenticated, only return comments on their posts
         if self.request.user.is_authenticated:
             user_posts = Post.objects.filter(author=self.request.user)
-            return queryset.annotate(
-                is_author_post=models.Case(
-                    models.When(post__in=user_posts, then=True),
-                    default=False,
-                    output_field=models.BooleanField(),
-                )
-            )
-        return queryset
+            return queryset.filter(post__in=user_posts)
+        
+        # For unauthenticated users, return empty queryset
+        return Comment.objects.none()
 
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
